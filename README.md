@@ -22,9 +22,10 @@ Uses IBC to communicate between clients and servers.
 
 # Cool stuff
 
-* Auto-generated Rustdoc for [shared types](https://dakom.github.io/ibc-chat/doc/shared/) contract messages, including IBC and events (from the `shared` package) and [wallet types](https://dakom.github.io/ibc-chat/doc/wallet/) for wallet crate.
 * 100% Fullstack Rust, types are shared between contracts, deploy, on-chain tests, off-chain/multitest, and frontend!! (all powered by wasm with cosmjs bindings :))
+* Auto-generated Rustdoc for [shared types](https://dakom.github.io/ibc-chat/doc/shared/) contract messages, including IBC and events (from the `shared` package) and [wallet types](https://dakom.github.io/ibc-chat/doc/wallet/) for wallet crate.
 * Client-side "sdk-like" methods (i.e. contract API) are shared between all clients (including on-chain, off-chain, and frontend)
+  - e.g. the [ContractClient](https://dakom.github.io/ibc-chat/doc/wallet/contract_traits/trait.ContractClient.html) and [ContractServer](https://dakom.github.io/ibc-chat/doc/wallet/contract_traits/trait.ContractServer.html) - which are traits with implementations everywhere. Just call the methods and it works, whether in multi-test, on-chain tests, or frontend!
 * Taskfile with simple commands to make setup and development _much_ less painful.
 * Shared config, one file to configure the network, one auto-generated file to maintain contract addresses, ibc ports, etc. across all delivery flows
 
@@ -62,7 +63,7 @@ Uses IBC to communicate between clients and servers.
 
 Then you can stop and start the local chains as-needed with `task chains-stop` / `task chains-start`
 
-Debugging individual chains by shell can be done via `task chain-sh-[neutron | kujira | stargaze | wasmd]`.
+Debugging individual chains by shell can be done via `task chain-sh-[neutron | kujira | stargaze | nois]`.
 
 
 ## Easy setup 

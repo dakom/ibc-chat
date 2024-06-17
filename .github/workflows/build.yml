@@ -46,6 +46,9 @@ jobs:
     - name: cargo doc
       run: cd packages/shared && cargo doc --no-deps
 
+    - name: cargo doc
+      run: cd packages/wallet && cargo doc --no-deps
+
     - name: copy cargo doc 
       run: cp -R ./target/doc ./frontend/dist/doc
 

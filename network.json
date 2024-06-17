@@ -1,0 +1,86 @@
+{
+    "neutron_testnet": {
+      "rpc_url": "https://rpc-falcron.pion-1.ntrn.tech",
+      "rest_url": "https://rest-falcron.pion-1.ntrn.tech",
+      "gas_price": "0.025",
+      "full_denom": "NTRN",
+      "denom": "untrn",
+      "chain_id": "pion-1",
+      "addr_prefix": "neutron"
+    },
+    "neutron_local": {
+      "rpc_url": "http://localhost:16657",
+      "rest_url": "http://localhost:1337",
+      "gas_price": "0.025",
+      "full_denom": "NTRN",
+      "denom": "untrn",
+      "chain_id": "local-neutron",
+      "addr_prefix": "neutron",
+      "timeout": "1s",
+      "binary": "neutrond",
+      "chain_dir": "/opt/neutron/data/local-neutron"
+    },
+    "stargaze_testnet": {
+      "rpc_url": "https://rpc.elgafar-1.stargaze-apis.com",
+      "rest_url": "https://rest.elgafar-1.stargaze-apis.com",
+      "gas_price": "0.025",
+      "full_denom": "STARS",
+      "denom": "ustars",
+      "chain_id": "elgafar-1",
+      "addr_prefix": "stars"
+    },
+    "stargaze_local": {
+      "rpc_url": "http://localhost:26658",
+      "rest_url": "http://localhost:2338",
+      "gas_price": "0.025",
+      "full_denom": "STARS",
+      "denom": "ustars",
+      "chain_id": "local-stargaze",
+      "addr_prefix": "stars",
+      "timeout": "1s",
+      "binary": "starsd",
+      "chain_dir": "/data/.starsd"
+    },
+    "kujira_testnet": {
+      "rpc_url": "https://kujira-testnet-rpc.polkachu.com",
+      "rest_url": "https://kujira-testnet-api.polkachu.com",
+      "gas_price": "0.025",
+      "full_denom": "Kuji",
+      "denom": "ukuji",
+      "chain_id": "harpoon-4",
+      "addr_prefix": "kujira"
+    },
+    "kujira_local": {
+      "rpc_url": "http://localhost:36659",
+      "rest_url": "http://localhost:3339",
+      "gas_price": "0.025",
+      "full_denom": "Kuji",
+      "denom": "ukuji",
+      "chain_id": "local-kujira",
+      "addr_prefix": "kujira",
+      "timeout": "1s",
+      "binary": "kujirad",
+      "chain_dir": "/root/.kujira"
+    },
+    "nois_testnet": {
+      "rpc_url": "https://nois-testnet-rpc.polkachu.com",
+      "rest_url": "https://nois-testnet-api.polkachu.com",
+      "gas_price": "0.025",
+      "full_denom": "Nois",
+      "denom": "unois",
+      "chain_id": "nois-testnet-005",
+      "addr_prefix": "nois"
+    },
+    "nois_local": {
+      "rpc_url": "http://localhost:46659",
+      "rest_url": "http://localhost:4339",
+      "gas_price": "0.025",
+      "full_denom": "Nois",
+      "denom": "unois",
+      "chain_id": "local-nois",
+      "addr_prefix": "nois",
+      "timeout": "1s",
+      "binary": "noisd",
+      "chain_dir": "/root/.nois"
+    }
+}

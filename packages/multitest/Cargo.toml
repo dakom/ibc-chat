@@ -1,0 +1,21 @@
+[package]
+name = "app_tests"
+version = "0.0.0"
+authors = ["David Komer <david@confio.gmbh>"]
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+server = {path = "../../contracts/server"} 
+client = {path = "../../contracts/client"} 
+shared = {path = "../shared"}
+wallet = {path = "../wallet"}
+cosmwasm-std = {version = "2.0.3", features = ["stargate"]}
+anyhow = "1.0.86"
+cw-multi-test = "2.0.1"
+serde = "1.0.197"
+serde_json = "1.0.114"
+tokio = { version = "1", features = ["full"] }
+

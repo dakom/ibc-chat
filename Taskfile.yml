@@ -1,0 +1,571 @@
+version: '3'
+
+dotenv: ['.env']
+
+# silent: true
+
+vars:
+  # Just to distinguish these relayer paths from other apps
+  RELAYER_PATH_PREFIX: "ibc-chat"
+  RELAYER_CHAIN_SERVER:
+    neutron
+  RELAYER_CHAIN_CLIENTS:
+    kujira
+    stargaze
+    nois
+  RELAYER_KEY_NAME: "default"
+  IBC_CHANNEL_VERSION: "ibc-chat-001"
+  CONTRACTS: 
+    client
+    server
+
+tasks:
+
+  ##### FRONTEND #####
+
+  frontend-dev-*:
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    deps: [internal-localmedia-dev, "internal-frontend-dev-nomedia-{{.TARGET}}"]
+
+  frontend-build:
+    dir: ./frontend
+    env: 
+      RUSTFLAGS: --cfg=web_sys_unstable_apis 
+      CHAINENV: "testnet"
+    cmds:
+      - trunk build --release --public-url=https://dakom.github.io/w3bay/
+
+  internal-frontend-dev-nomedia-*:
+    internal: true
+    dir: ./frontend
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    env: 
+      RUSTFLAGS: --cfg=web_sys_unstable_apis
+      CHAINENV: "{{.TARGET}}"
+    cmds:
+      - trunk serve --features dev --watch . --watch ../packages/shared --watch ../packages/wallet
+
+  internal-localmedia-dev:
+    internal: true
+    dir: ./MEDIA/frontend
+    cmds: 
+      - http-server --gzip --cors -p 9000
+
+
+  ##### CONTRACT BUILDING / DEPLOYING #####
+  contracts-build-native:
+    vars:
+      WASM_DIR: "{{.USER_WORKING_DIR}}/wasm"
+      ARTIFACTS_DIR: "{{.WASM_DIR}}/artifacts" 
+      CONTRACTS_DIR: "{{.USER_WORKING_DIR}}/contracts" 
+      RELEASE_DIR: "{{.USER_WORKING_DIR}}/target/wasm32-unknown-unknown/release"
+      INTERMEDIATE_SHAS: "{{.ARTIFACTS_DIR}}/checksums_intermediate.txt"
+
+    cmds:
+      - rm -rf "{{.WASM_DIR}}"
+      - mkdir -p "{{.ARTIFACTS_DIR}}"
+      - for: { var: CONTRACTS }
+        cmd: cd "{{joinPath .CONTRACTS_DIR .ITEM}}" && RUSTFLAGS="-C link-arg=-s" cargo build --release --lib --target=wasm32-unknown-unknown
+      - for: { var: CONTRACTS }
+        cmd: echo "$(sha256sum -- '{{joinPath .RELEASE_DIR .ITEM}}.wasm' | sed 's,../target,target,g')" >> "{{.INTERMEDIATE_SHAS}}"
+      - for: { var: CONTRACTS }
+        cmd: wasm-opt -Os --signext-lowering "{{joinPath .RELEASE_DIR .ITEM}}.wasm" -o "{{joinPath .ARTIFACTS_DIR .ITEM}}.wasm" 
+      - cd "{{.ARTIFACTS_DIR}}" && sha256sum -- *.wasm | tee checksums.txt
+
+  contracts-build-docker:
+    dir: packages
+    cmds:
+      - docker run --rm --tty
+        -u "$(id -u)":"$(id -g)"
+        -v "{{.USER_WORKING_DIR}}":/code
+        -v "{{.USER_WORKING_DIR}}/wasm/target":/target
+        -v "{{.USER_WORKING_DIR}}/wasm/artifacts":/code/artifacts
+        -v "{{.USER_WORKING_DIR}}/wasm/registry":/usr/local/cargo/registry
+        -v "{{.USER_WORKING_DIR}}/wasm/git":/usr/local/cargo/git
+        cosmwasm/workspace-optimizer:0.15.0
+
+      # not sure how this was created since we mapped the tool's /code/artifacts
+      # but it's empty (the real artifacts are in wasm/artifacts)
+      - rm -rf ./artifacts
+
+  contracts-build-docker_arm:
+    dir: packages
+    cmds:
+      - docker run --rm --tty
+        -u "$(id -u)":"$(id -g)"
+        -v "{{.USER_WORKING_DIR}}":/code
+        -v "{{.USER_WORKING_DIR}}/wasm/target":/target
+        -v "{{.USER_WORKING_DIR}}/wasm/artifacts":/code/artifacts
+        -v "{{.USER_WORKING_DIR}}/wasm/registry":/usr/local/cargo/registry
+        -v "{{.USER_WORKING_DIR}}/wasm/git":/usr/local/cargo/git
+        cosmwasm/workspace-optimizer-arm64:0.15.0
+
+      # not sure how this was created since we mapped the tool's /code/artifacts
+      # but it's empty (the real artifacts are in wasm/artifacts)
+      - rm -rf ./artifacts
+
+  contracts-deploy-*:
+    dir: cli
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    cmds:
+      - task: contracts-build-{{.CONTRACTS_BUILD_TOOL}}
+      - task: deployer-only-deploy-{{.TARGET}}
+
+
+  contracts-migrate-*:
+    dir: cli
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    cmds:
+      - task: contracts-build-{{.CONTRACTS_BUILD_TOOL}}
+      - task: deployer-only-migrate-{{.TARGET}}
+
+
+  ##### RELAYER #####
+  # All commands use `-testnet` or `-local`
+
+  relayer-setup-*:
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    cmds: 
+      - task: internal-relayer-setup-failable-{{.TARGET}}
+      - task: relayer-create-clients-{{.TARGET}}
+      # - task: relayer-create-connections-{{.TARGET}}
+      # - task: relayer-create-channels-{{.TARGET}}
+
+  internal-relayer-setup-failable-*:
+    internal: true
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    # these setups are allowed to fail as part of the simple relayer-setup command
+    # we assume the errors are because this setup part already exists
+    ignore_error: true
+    cmds: 
+      - task: relayer-delete-chains-{{.TARGET}}
+      - task: relayer-add-chains-{{.TARGET}}
+      - task: relayer-add-wallet-{{.TARGET}}
+      - task: relayer-create-paths-{{.TARGET}}
+
+  relayer-delete-chains-*:
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    cmds:
+      - rly chains delete {{.RELAYER_CHAIN_SERVER}}-{{.TARGET}}
+      - for: { var: RELAYER_CHAIN_CLIENTS }
+        cmd: rly chains delete {{.ITEM}}-{{.TARGET}}
+
+  relayer-add-chains-*:
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    cmds:
+      - task: internal-relayer-add-chain
+        vars:
+          ID: "{{.RELAYER_CHAIN_SERVER}}"
+          TARGET: "{{.TARGET}}"
+      - for: { var: RELAYER_CHAIN_CLIENTS }
+        task: internal-relayer-add-chain
+        vars:
+          ID: "{{.ITEM}}"
+          TARGET: "{{.TARGET}}"
+
+  internal-relayer-add-chain:
+    internal: true
+    vars:
+      CHAIN_ID:
+        sh: jq -r '.{{.ID}}_local.chain_id' network.json
+      RPC_URL:
+        sh: jq -r '.{{.ID}}_local.rpc_url' network.json
+      ACCOUNT_PREFIX:
+        sh: jq -r '.{{.ID}}_local.addr_prefix' network.json
+      DENOM:
+        sh: jq -r '.{{.ID}}_local.denom' network.json
+    cmds:
+      - echo "{{.ID}}" - "{{.TARGET}}" - "{{.CHAIN_ID}}"
+      - jq --arg relayer_key "{{.RELAYER_KEY_NAME}}" --arg chain_id "{{.CHAIN_ID}}" --arg rpc_addr "{{.RPC_URL}}" --arg account_prefix "{{.ACCOUNT_PREFIX}}" --arg gas_prices "0.025{{.DENOM}}" '.value["chain-id"] = $chain_id | .value["rpc-addr"] = $rpc_addr | .value["account-prefix"] = $account_prefix | .value["gas-prices"] = $gas_prices | .value["key"] = $relayer_key' relayer.json > "tmp-relayer-{{.ID}}.json"
+      - rly chains add --file "./tmp-relayer-{{.ID}}.json" "{{.ID}}-{{.TARGET}}"
+      - rm -f tmp-relayer-{{.ID}}.json
+
+
+  relayer-add-wallet-*:
+    ignore_error: true
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    cmds:
+      - rly keys delete {{.RELAYER_CHAIN_SERVER}}-{{.TARGET}} {{.RELAYER_KEY_NAME}} -y
+      - rly keys restore {{.RELAYER_CHAIN_SERVER}}-{{.TARGET}} {{.RELAYER_KEY_NAME}} "{{.RELAYER_SEED_PHRASE}}"
+      - for: { var: RELAYER_CHAIN_CLIENTS }
+        cmd: rly keys delete {{.ITEM}}-{{.TARGET}} {{.RELAYER_KEY_NAME}} -y
+      - for: { var: RELAYER_CHAIN_CLIENTS }
+        cmd: rly keys restore {{.ITEM}}-{{.TARGET}} {{.RELAYER_KEY_NAME}} "{{.RELAYER_SEED_PHRASE}}"
+
+  relayer-check-wallet-*:
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    cmds:
+      - rly q balance {{.RELAYER_CHAIN_SERVER}}-{{.TARGET}}
+      - for: { var: RELAYER_CHAIN_CLIENTS }
+        cmd: rly q balance {{.ITEM}}-{{.TARGET}}
+  
+  relayer-create-paths-*:
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    cmds:
+      - for: { var: RELAYER_CHAIN_CLIENTS }
+        task: internal-relayer-create-path
+        vars:
+          ID: "{{.ITEM}}"
+          TARGET: "{{.TARGET}}"
+
+  internal-relayer-create-path:
+    internal: true
+    vars:
+      SERVER_CHAIN_ID:
+        sh: jq -r '.{{.RELAYER_CHAIN_SERVER}}_{{.TARGET}}.chain_id' network.json
+      CLIENT_CHAIN_ID:
+        sh: jq -r '.{{.ID}}_{{.TARGET}}.chain_id' network.json
+    cmds:
+      - rly paths new {{.SERVER_CHAIN_ID}} {{.CLIENT_CHAIN_ID}} {{.RELAYER_PATH_PREFIX}}-{{.RELAYER_CHAIN_SERVER}}-{{.ID}}-{{.TARGET}} 
+  
+  relayer-create-clients-*:
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    cmds:
+      - for: { var: RELAYER_CHAIN_CLIENTS }
+        task: internal-relayer-create-client
+        vars:
+          ID: "{{.ITEM}}"
+          TARGET: "{{.TARGET}}"
+
+  internal-relayer-create-client:
+    internal: true
+    vars:
+      SERVER_CHAIN_ID:
+        sh: jq -r '.{{.RELAYER_CHAIN_SERVER}}_{{.TARGET}}.chain_id' network.json
+      CLIENT_CHAIN_ID:
+        sh: jq -r '.{{.ID}}_{{.TARGET}}.chain_id' network.json
+    cmds:
+      - rly transact client {{.RELAYER_CHAIN_SERVER}}-{{.TARGET}} {{.ID}}-{{.TARGET}} {{.RELAYER_PATH_PREFIX}}-{{.RELAYER_CHAIN_SERVER}}-{{.ID}}-{{.TARGET}} --override
+  
+  relayer-create-connections-*:
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    cmds:
+      - for: { var: RELAYER_CHAIN_CLIENTS }
+        task: internal-relayer-create-connection
+        vars:
+          ID: "{{.ITEM}}"
+          TARGET: "{{.TARGET}}"
+
+  internal-relayer-create-connection:
+    internal: true
+    vars:
+      SERVER_CHAIN_ID:
+        sh: jq -r '.{{.RELAYER_CHAIN_SERVER}}_{{.TARGET}}.chain_id' network.json
+      CLIENT_CHAIN_ID:
+        sh: jq -r '.{{.ID}}_{{.TARGET}}.chain_id' network.json
+    cmds:
+      - rly transact connection {{.RELAYER_PATH_PREFIX}}-{{.RELAYER_CHAIN_SERVER}}-{{.ID}}-{{.TARGET}} --override
+
+
+  relayer-create-channels-*:
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    cmds:
+      - for: { var: RELAYER_CHAIN_CLIENTS }
+        task: internal-relayer-create-channel
+        vars:
+          ID: "{{.ITEM}}"
+          TARGET: "{{.TARGET}}"
+
+  internal-relayer-create-channel:
+    internal: true
+    vars:
+      SERVER_IBC_PORT:
+        sh: jq -r '.{{.RELAYER_CHAIN_SERVER}}.{{.TARGET}}.server.ibcPort' deploy.json
+      CLIENT_IBC_PORT:
+        sh: jq -r '.{{.ID}}.{{.TARGET}}.client.ibcPort' deploy.json
+    cmds:
+      - rly transact channel {{.RELAYER_PATH_PREFIX}}-{{.RELAYER_CHAIN_SERVER}}-{{.ID}}-{{.TARGET}} --src-port {{.SERVER_IBC_PORT}} --dst-port {{.CLIENT_IBC_PORT}} --order unordered --version {{.IBC_CHANNEL_VERSION}} --debug --override
+  
+  relayer-start-*:
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    # TODO - can these be parallelized and dynamic?
+    deps: [
+      "internal-relayer-start-kujira-{{.TARGET}}",
+      "internal-relayer-start-stargaze-{{.TARGET}}",
+      "internal-relayer-start-nois-{{.TARGET}}",
+    ]
+
+  internal-relayer-start-*-*:
+    internal: true
+    vars:
+      ID: "{{index .MATCH 0}}"
+      TARGET: "{{index .MATCH 1}}"
+    cmds:
+      - rly start {{.RELAYER_PATH_PREFIX}}-{{.RELAYER_CHAIN_SERVER}}-{{.ID}}-{{.TARGET}} --debug-addr="localhost:0"
+
+  ##### LOCAL CHAINS #####
+
+  chains-create:
+    deps: [chain-create-neutron, chain-create-kujira, chain-create-stargaze, chain-create-nois]
+
+  chains-start:
+    deps: [chain-start-neutron, chain-start-kujira, chain-start-stargaze, chain-start-nois]
+  
+  chains-stop:
+    deps: [chain-stop-neutron, chain-stop-kujira, chain-stop-stargaze, chain-stop-nois]
+
+  chains-delete:
+    deps: [chain-delete-neutron, chain-delete-kujira, chain-delete-stargaze, chain-delete-nois]
+
+ ##### DOCKER CHAIN SETUP ##### 
+  chain-create-*:
+    vars:
+      ID: "{{index .MATCH 0}}"
+      CHAIN_ID:
+        sh: jq -r '.{{.ID}}_local.chain_id' network.json
+      FEE_DENOM:
+        sh: jq -r '.{{.ID}}_local.denom' network.json
+      STAKE_DENOM: "{{.FEE_DENOM}}" 
+      RPC_PORT:
+        sh: jq -r '.{{.ID}}_local.rpc_url' network.json | sed -E 's/.*:([0-9]+).*/\1/' 
+      REST_PORT:
+        sh: jq -r '.{{.ID}}_local.rest_url' network.json | sed -E 's/.*:([0-9]+).*/\1/' 
+      BINARY:
+        sh: jq -r '.{{.ID}}_local.binary' network.json
+      DOCKER_IMAGE: "local-{{.ID}}"
+      TIMEOUT:
+        sh: jq -r '.{{.ID}}_local.timeout' network.json
+      VOLUME_NAME: "{{.CHAIN_ID}}_data"
+      CHAIN_DIR:
+        sh: jq -r '.{{.ID}}_local.chain_dir' network.json
+      CONFIG_FILE: "{{.CHAIN_DIR}}/config/config.toml"
+      APP_FILE: "{{.CHAIN_DIR}}/config/app.toml"
+      GENESIS_FILE: "{{.CHAIN_DIR}}/config/genesis.json"
+      GENESIS_DENOM_KEYS:
+        denom
+        mint_denom
+        bond_denom
+      GENESIS_CMD: '{{ if eq .ID "neutron" "nois" }}{{else}}genesis {{end}}'
+    cmds:
+      - task: chain-delete-{{.ID}}
+      - echo "Creating chain {{.CHAIN_ID}}"
+      # create the docker instance
+      - docker run -d --name {{.CHAIN_ID}} 
+        --entrypoint ""
+        -p {{.RPC_PORT}}:26657 -p {{.REST_PORT}}:1317 
+        --mount type=volume,source={{.VOLUME_NAME}},target=/root 
+        "{{.DOCKER_IMAGE}}"
+        tail -f /dev/null
+
+      # inspiration:
+      # https://github.com/neutron-org/neutron/blob/main/network/init.sh
+      # https://github.com/CosmWasm/wasmd/blob/main/scripts/contrib/local/setup_wasmd.sh
+      # https://github.com/osmosis-labs/localosmosis-archive/blob/main/README.md#pro-tip-speed-up-block-time
+      #
+      # initialize the chain
+      - |
+        docker exec {{.CHAIN_ID}} /bin/sh -c '
+        if [ "{{.ID}}" = "neutron" ]
+        then
+          export CHAINID="{{.CHAIN_ID}}"
+          export STAKEDENOM="{{.STAKE_DENOM}}"
+          cd /opt/neutron && make install-test-binary
+          bash /opt/neutron/network/init.sh
+          bash /opt/neutron/network/init-neutrond.sh
+        else
+          {{.BINARY}} init test --home "{{.CHAIN_DIR}}" --chain-id="{{.CHAIN_ID}}"
+        fi'
+      # create accounts
+      - docker exec {{.CHAIN_ID}} /bin/sh -c 'echo "{{.VALIDATOR_SEED_PHRASE}}" | {{.BINARY}} keys add validator --home "{{.CHAIN_DIR}}" --keyring-backend=test --recover'
+      - docker exec {{.CHAIN_ID}} {{.BINARY}} {{.GENESIS_CMD}}add-genesis-account validator "100000000000000{{.STAKE_DENOM}}" --home "{{.CHAIN_DIR}}" --keyring-backend=test
+      - |
+        docker exec {{.CHAIN_ID}} /bin/sh -c '
+        if [ "{{.CLI_SEED_PHRASE}}" != "{{.VALIDATOR_SEED_PHRASE}}" ]
+        then
+          echo "{{.CLI_SEED_PHRASE}}" | {{.BINARY}} keys add cli --home "{{.CHAIN_DIR}}" --keyring-backend=test --recover
+          {{.BINARY}} {{.GENESIS_CMD}}add-genesis-account cli "100000000000000{{.STAKE_DENOM}}" --home "{{.CHAIN_DIR}}" --keyring-backend=test
+        fi'
+      - |
+        docker exec {{.CHAIN_ID}} /bin/sh -c '
+        if [ "{{.RELAYER_SEED_PHRASE}}" != "{{.VALIDATOR_SEED_PHRASE}}" ] && [ "{{.RELAYER_SEED_PHRASE}}" != "{{.CLI_SEED_PHRASE}}" ]
+        then
+          echo "{{.RELAYER_SEED_PHRASE}}" | {{.BINARY}} keys add relayer --home "{{.CHAIN_DIR}}" --keyring-backend=test --recover
+          {{.BINARY}} {{.GENESIS_CMD}}add-genesis-account relayer "100000000000000{{.STAKE_DENOM}}" --home "{{.CHAIN_DIR}}" --keyring-backend=test
+        fi'
+      - |
+        docker exec {{.CHAIN_ID}} /bin/sh -c '
+        if [ "{{.USER_SEED_PHRASE}}" != "{{.VALIDATOR_SEED_PHRASE}}" ] && [ "{{.USER_SEED_PHRASE}}" != "{{.CLI_SEED_PHRASE}}" ] && [ "{{.USER_SEED_PHRASE}}" != "{{.RELAYER_SEED_PHRASE}}" ]
+        then
+          echo "{{.USER_SEED_PHRASE}}" | {{.BINARY}} keys add user --home "{{.CHAIN_DIR}}" --keyring-backend=test --recover
+          {{.BINARY}} {{.GENESIS_CMD}}add-genesis-account user "100000000000000{{.STAKE_DENOM}}" --home "{{.CHAIN_DIR}}" --keyring-backend=test
+        fi'
+      # submit genesis validator tx if not on neutron
+      - |
+        docker exec {{.CHAIN_ID}} /bin/sh -c '
+        if [ "{{.ID}}" != "neutron" ]
+        then
+          {{.BINARY}} {{.GENESIS_CMD}}gentx validator "250000000{{.STAKE_DENOM}}" --chain-id="{{.CHAIN_ID}}" --keyring-backend=test --home "{{.CHAIN_DIR}}"
+          {{.BINARY}} {{.GENESIS_CMD}}collect-gentxs --home "{{.CHAIN_DIR}}"
+        fi'
+      # set the block time to be fast 
+      - docker exec {{.CHAIN_ID}} sed -E -i '/timeout_(propose|prevote|precommit|commit)/s/[0-9]+m?s/{{.TIMEOUT}}/' "{{.CONFIG_FILE}}"
+      # set the minimum gas prices to 0
+      - docker exec {{.CHAIN_ID}} sed -E -i 's/minimum-gas-prices = "[^"]*"/minimum-gas-prices = "0{{.STAKE_DENOM}}"/g' "{{.APP_FILE}}" 
+      # enable unsafe cors
+      - docker exec {{.CHAIN_ID}} sed -E -i 's/enabled-unsafe-cors *= *false/enabled-unsafe-cors = true/g' "{{.APP_FILE}}" 
+      - docker exec {{.CHAIN_ID}} sed -E -i 's/cors_allowed_origins = \[[^]]*\]/cors_allowed_origins = ["*"]/' "{{.CONFIG_FILE}}" 
+      # replace url to listen on all ip addresses
+      - docker exec {{.CHAIN_ID}} sed -E -i 's/tcp:\/\/[^:]+:/tcp:\/\/0.0.0.0:/g' {{.APP_FILE}}
+      - docker exec {{.CHAIN_ID}} sed -E -i 's/tcp:\/\/[^:]+:/tcp:\/\/0.0.0.0:/g' {{.CONFIG_FILE}}
+      # replace denom in genesis file
+      - for: { var: GENESIS_DENOM_KEYS }
+        cmd: |
+          docker exec {{.CHAIN_ID}} sed -E -i 's/"{{.ITEM}}"[[:space:]]*:[[:space:]]*"stake"/"{{.ITEM}}": "{{.STAKE_DENOM}}"/g' "{{.GENESIS_FILE}}" 
+      # stop the docker instance
+      - docker kill {{.CHAIN_ID}}
+  
+  chain-delete-*:
+    env: 
+      DOCKER_DEFAULT_PLATFORM: linux/amd64
+    vars:
+      ID: "{{index .MATCH 0}}"
+      CHAIN_ID:
+        sh: jq -r '.{{.ID}}_local.chain_id' network.json
+      VOLUME_NAME: "{{.CHAIN_ID}}_data"
+      DOCKER_IMAGE: "local-{{.ID}}"
+    # allow this command to fail
+    ignore_error: true  
+    cmds:
+      - echo "Deleting chain {{.CHAIN_ID}}"
+      - docker kill {{.CHAIN_ID}}
+      - docker rm {{.CHAIN_ID}}
+      - docker volume rm -f {{.VOLUME_NAME}} 
+
+  chain-stop-*:
+    env: 
+      DOCKER_DEFAULT_PLATFORM: linux/amd64
+    vars:
+      ID: "{{index .MATCH 0}}"
+      CHAIN_ID:
+        sh: jq -r '.{{.ID}}_local.chain_id' network.json
+    ignore_error: true  
+    cmds:
+      - docker kill {{.CHAIN_ID}}
+  
+  chain-start-*:
+    env: 
+      DOCKER_DEFAULT_PLATFORM: linux/amd64
+    vars:
+      ID: "{{index .MATCH 0}}"
+      CHAIN_ID:
+        sh: jq -r '.{{.ID}}_local.chain_id' network.json
+      BINARY:
+        sh: jq -r '.{{.ID}}_local.binary' network.json
+      CHAIN_DIR:
+        sh: jq -r '.{{.ID}}_local.chain_dir' network.json
+    cmds:
+      - docker restart {{.CHAIN_ID}}
+      - docker exec -d {{.CHAIN_ID}} {{.BINARY}} start --home "{{.CHAIN_DIR}}"
+
+  chain-sh-*:
+    env: 
+      DOCKER_DEFAULT_PLATFORM: linux/amd64
+    vars:
+      ID: "{{index .MATCH 0}}"
+      CHAIN_ID:
+        sh: jq -r '.{{.ID}}_local.chain_id' network.json
+    cmds:
+      - docker exec -it {{.CHAIN_ID}} /bin/sh 
+  
+  ##### CLI PREP (both deployer and onchain-tests) #####
+
+  cli-prepare:
+    deps: [cli-prepare-deployer, cli-prepare-onchain-tests]
+    
+  cli-prepare-deployer:
+    internal: true
+    dir: deployer
+    cmds:
+      - npm install
+      - task: deployer-build
+
+  cli-prepare-onchain-tests:
+    internal: true
+    dir: onchain-tests
+    cmds:
+      - npm install
+      - task: onchain-tests-build
+
+  ##### DEPLOYER #####
+
+  deployer-build:
+    dir: deployer
+    cmds:
+      - npm run build 
+
+  deployer-deploy-*:
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    cmds:
+      - task: deployer-build
+      - task: deployer-only-deploy-{{.TARGET}} 
+
+  deployer-only-deploy-*:
+    dir: deployer
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    env: 
+      CHAINENV: "{{.TARGET}}"
+      CLI_SEED_PHRASE: "{{.CLI_SEED_PHRASE}}"
+    cmds:
+      - node dist/js/deployer.js --action=deploy
+
+  deployer-migrate-*:
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    cmds:
+      - task: deployer-build
+      - task: deployer-only-migrate-{{.TARGET}} 
+
+  deployer-only-migrate-*:
+    dir: deployer
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    env: 
+      CHAINENV: "{{.TARGET}}"
+      CLI_SEED_PHRASE: "{{.CLI_SEED_PHRASE}}"
+    cmds:
+      - node dist/js/deployer.js --action=migrate
+
+  #### TESTS #### 
+  onchain-tests-build:
+    dir: onchain-tests 
+    cmds:
+      - npm run build 
+
+  test-onchain-*:
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    cmds:
+      - task: onchain-tests-build
+      - task: test-only-onchain-{{.TARGET}} 
+
+  test-only-onchain-*:
+    dir: onchain-tests
+    vars:
+      TARGET: "{{index .MATCH 0}}"
+    env: 
+      CHAINENV: "{{.TARGET}}"
+      CLI_SEED_PHRASE: "{{.CLI_SEED_PHRASE}}"
+    cmds:
+      - node dist/js/onchain-tests.js
+
+  test-offchain:
+    dir: packages/multitest
+    cmds:
+      - cargo test

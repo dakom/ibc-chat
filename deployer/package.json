@@ -1,0 +1,25 @@
+{
+  "name": "deployer",
+  "scripts": {
+    "build": "rimraf dist/js && rollup --bundleConfigAsCjs --config",
+    "watch": "rimraf dist/js && rollup --bundleConfigAsCjs --config --watch"
+  },
+  "dependencies": {
+    "@cosmjs/cosmwasm-stargate": "^0.32.3",
+    "@cosmjs/crypto": "^0.32.3",
+    "@cosmjs/encoding": "^0.32.3",
+    "@cosmjs/proto-signing": "^0.32.3",
+    "@cosmjs/stargate": "^0.32.3",
+    "@cosmjs/tendermint-rpc": "^0.32.3",
+    "dotenv": "^16.4.5",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@wasm-tool/rollup-plugin-rust": "^2.4.5",
+    "rimraf": "^5.0.7",
+    "rollup": "^4.18.0"
+  }
+}

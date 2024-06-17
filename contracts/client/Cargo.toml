@@ -1,0 +1,15 @@
+[package]
+name = "client"
+version = "0.0.0"
+authors = ["David Komer <david@confio.gmbh>"]
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+cosmwasm-std = {version = "2.0.3", features = ["stargate"]}
+shared = {path = "../../packages/shared"}
+anyhow = "1.0.86"
+cw-storage-plus = "2.0.0"
+cw2 = "2.0.0"

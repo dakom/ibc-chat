@@ -18,17 +18,23 @@ vars:
   CONTRACTS: 
     client
     server
+  DESC_TARGETS: "[local | testnet]"
+  DESC_CHAIN_IDS: "[{{.RELAYER_CHAIN_SERVER}} | {{splitList \" \" .RELAYER_CHAIN_CLIENTS | join \" | \"}}]"
 
 tasks:
 
   ##### FRONTEND #####
 
   frontend-dev-*:
+    desc: |
+      frontend-dev-{{.DESC_TARGETS}}
+      Starts the frontend in dev mode, run in its own terminal (not a background or one-off task)
     vars:
       TARGET: "{{index .MATCH 0}}"
     deps: [internal-localmedia-dev, "internal-frontend-dev-nomedia-{{.TARGET}}"]
 
   frontend-build:
+    desc: Builds the frontend, only used in CI / final delivery 
     dir: ./frontend
     env: 
       RUSTFLAGS: --cfg=web_sys_unstable_apis 
@@ -55,7 +61,8 @@ tasks:
 
 
   ##### CONTRACT BUILDING / DEPLOYING #####
-  contracts-build-native:
+  internal-contracts-build-native:
+    internal: true
     vars:
       WASM_DIR: "{{.USER_WORKING_DIR}}/wasm"
       ARTIFACTS_DIR: "{{.WASM_DIR}}/artifacts" 
@@ -74,7 +81,8 @@ tasks:
         cmd: wasm-opt -Os --signext-lowering "{{joinPath .RELEASE_DIR .ITEM}}.wasm" -o "{{joinPath .ARTIFACTS_DIR .ITEM}}.wasm" 
       - cd "{{.ARTIFACTS_DIR}}" && sha256sum -- *.wasm | tee checksums.txt
 
-  contracts-build-docker:
+  internal-contracts-build-docker:
+    internal: true
     dir: packages
     cmds:
       - docker run --rm --tty
@@ -90,7 +98,8 @@ tasks:
       # but it's empty (the real artifacts are in wasm/artifacts)
       - rm -rf ./artifacts
 
-  contracts-build-docker_arm:
+  internal-contracts-build-docker_arm:
+    internal: true
     dir: packages
     cmds:
       - docker run --rm --tty
@@ -106,35 +115,50 @@ tasks:
       # but it's empty (the real artifacts are in wasm/artifacts)
       - rm -rf ./artifacts
 
+  contracts-build:
+    desc: |
+      Builds the contracts
+      The tool (native, docker, or docker_arm) is set via the CONTRACTS_BUILD_TOOL env var 
+    cmds:
+      - task: contracts-build-{{.CONTRACTS_BUILD_TOOL}}
+
   contracts-deploy-*:
+    desc: |
+      contracts-deploy-{{.DESC_TARGETS}}
+      Rebuilds and deploys the contracts (i.e. with fresh instantiation, new address and state)
     dir: cli
     vars:
       TARGET: "{{index .MATCH 0}}"
     cmds:
-      - task: contracts-build-{{.CONTRACTS_BUILD_TOOL}}
-      - task: deployer-only-deploy-{{.TARGET}}
+      - task: contracts-build
+      - task: internal-deployer-only-deploy-{{.TARGET}}
 
 
   contracts-migrate-*:
+    desc: |
+      contracts-migrate-{{.DESC_TARGETS}}
+      Rebuilds and migrates the contracts (i.e. does not change contract addr or necessarily wipe state)
     dir: cli
     vars:
       TARGET: "{{index .MATCH 0}}"
     cmds:
-      - task: contracts-build-{{.CONTRACTS_BUILD_TOOL}}
-      - task: deployer-only-migrate-{{.TARGET}}
+      - task: contracts-build
+      - task: internal-deployer-only-migrate-{{.TARGET}}
 
 
   ##### RELAYER #####
-  # All commands use `-testnet` or `-local`
 
   relayer-setup-*:
+    desc: |
+      relayer-setup-{{.DESC_TARGETS}}
+      One-stop tool to setup the relayer, including chains, wallets, paths, clients, connections, and channels 
     vars:
       TARGET: "{{index .MATCH 0}}"
     cmds: 
       - task: internal-relayer-setup-failable-{{.TARGET}}
       - task: relayer-create-clients-{{.TARGET}}
-      # - task: relayer-create-connections-{{.TARGET}}
-      # - task: relayer-create-channels-{{.TARGET}}
+      - task: relayer-create-connections-{{.TARGET}}
+      - task: relayer-create-channels-{{.TARGET}}
 
   internal-relayer-setup-failable-*:
     internal: true
@@ -150,6 +174,9 @@ tasks:
       - task: relayer-create-paths-{{.TARGET}}
 
   relayer-delete-chains-*:
+    desc: |
+      relayer-delete-chains-{{.DESC_TARGETS}}
+      Deletes the chains from the relayer 
     vars:
       TARGET: "{{index .MATCH 0}}"
     cmds:
@@ -158,6 +185,10 @@ tasks:
         cmd: rly chains delete {{.ITEM}}-{{.TARGET}}
 
   relayer-add-chains-*:
+    desc: |
+      relayer-add-chains-{{.DESC_TARGETS}}
+      Add the chains to the relayer 
+      not required to be called separately, use relayer-setup instead
     vars:
       TARGET: "{{index .MATCH 0}}"
     cmds:
@@ -190,6 +221,10 @@ tasks:
 
 
   relayer-add-wallet-*:
+    desc: |
+      relayer-add-wallet-{{.DESC_TARGETS}}
+      Add the wallet (setup in .env) to the relayer 
+      not required to be called separately, use relayer-setup instead
     ignore_error: true
     vars:
       TARGET: "{{index .MATCH 0}}"
@@ -202,6 +237,9 @@ tasks:
         cmd: rly keys restore {{.ITEM}}-{{.TARGET}} {{.RELAYER_KEY_NAME}} "{{.RELAYER_SEED_PHRASE}}"
 
   relayer-check-wallet-*:
+    desc: |
+      relayer-check-wallet-{{.DESC_TARGETS}}
+      checks that all wallets are setup correctly for the relayer
     vars:
       TARGET: "{{index .MATCH 0}}"
     cmds:
@@ -210,6 +248,10 @@ tasks:
         cmd: rly q balance {{.ITEM}}-{{.TARGET}}
   
   relayer-create-paths-*:
+    desc: |
+      relayer-create-paths-{{.DESC_TARGETS}}
+      creates the paths for the relayer
+      not required to be called separately, use relayer-setup instead
     vars:
       TARGET: "{{index .MATCH 0}}"
     cmds:
@@ -230,6 +272,10 @@ tasks:
       - rly paths new {{.SERVER_CHAIN_ID}} {{.CLIENT_CHAIN_ID}} {{.RELAYER_PATH_PREFIX}}-{{.RELAYER_CHAIN_SERVER}}-{{.ID}}-{{.TARGET}} 
   
   relayer-create-clients-*:
+    desc: |
+      relayer-create-clients-{{.DESC_TARGETS}}
+      creates the clients for the relayer
+      not required to be called separately, use relayer-setup instead
     vars:
       TARGET: "{{index .MATCH 0}}"
     cmds:
@@ -250,6 +296,10 @@ tasks:
       - rly transact client {{.RELAYER_CHAIN_SERVER}}-{{.TARGET}} {{.ID}}-{{.TARGET}} {{.RELAYER_PATH_PREFIX}}-{{.RELAYER_CHAIN_SERVER}}-{{.ID}}-{{.TARGET}} --override
   
   relayer-create-connections-*:
+    desc: |
+      relayer-create-connections-{{.DESC_TARGETS}}
+      creates the connections for the relayer
+      not required to be called separately, use relayer-setup instead
     vars:
       TARGET: "{{index .MATCH 0}}"
     cmds:
@@ -271,6 +321,10 @@ tasks:
 
 
   relayer-create-channels-*:
+    desc: |
+      relayer-create-channels-{{.DESC_TARGETS}}
+      creates the channels for the relayer
+      run this whenever contract addresses change
     vars:
       TARGET: "{{index .MATCH 0}}"
     cmds:
@@ -291,6 +345,9 @@ tasks:
       - rly transact channel {{.RELAYER_PATH_PREFIX}}-{{.RELAYER_CHAIN_SERVER}}-{{.ID}}-{{.TARGET}} --src-port {{.SERVER_IBC_PORT}} --dst-port {{.CLIENT_IBC_PORT}} --order unordered --version {{.IBC_CHANNEL_VERSION}} --debug --override
   
   relayer-start-*:
+    desc: |
+      relayer-start-{{.DESC_TARGETS}}
+      start the relayer
     vars:
       TARGET: "{{index .MATCH 0}}"
     # TODO - can these be parallelized and dynamic?
@@ -311,19 +368,37 @@ tasks:
   ##### LOCAL CHAINS #####
 
   chains-create:
-    deps: [chain-create-neutron, chain-create-kujira, chain-create-stargaze, chain-create-nois]
+    desc: create all the local chain containers in docker
+    deps: [internal-chain-create-neutron, internal-chain-create-kujira, internal-chain-create-stargaze, internal-chain-create-nois]
 
   chains-start:
-    deps: [chain-start-neutron, chain-start-kujira, chain-start-stargaze, chain-start-nois]
+    desc: start all the local chains (requires chains-create) 
+    deps: [internal-chain-start-neutron, internal-chain-start-kujira, internal-chain-start-stargaze, internal-chain-start-nois]
   
   chains-stop:
-    deps: [chain-stop-neutron, chain-stop-kujira, chain-stop-stargaze, chain-stop-nois]
+    desc: stop all the local chains
+    deps: [internal-chain-stop-neutron, internal-chain-stop-kujira, internal-chain-stop-stargaze, internal-chain-stop-nois]
 
   chains-delete:
-    deps: [chain-delete-neutron, chain-delete-kujira, chain-delete-stargaze, chain-delete-nois]
+    desc: delete all the local chains from docker
+    deps: [internal-chain-delete-neutron, internal-chain-delete-kujira, internal-chain-delete-stargaze, internal-chain-delete-nois]
 
  ##### DOCKER CHAIN SETUP ##### 
-  chain-create-*:
+ # All of these except for `sh` are internal, since they're run as groups above
+  chain-sh-*:
+    desc: |
+      chain-sh-{{.DESC_CHAIN_IDS}}
+      Opens a shell in the chain container, helpful for debugging
+    env: 
+      DOCKER_DEFAULT_PLATFORM: linux/amd64
+    vars:
+      ID: "{{index .MATCH 0}}"
+      CHAIN_ID:
+        sh: jq -r '.{{.ID}}_local.chain_id' network.json
+    cmds:
+      - docker exec -it {{.CHAIN_ID}} /bin/sh 
+  internal-chain-create-*:
+    internal: true
     vars:
       ID: "{{index .MATCH 0}}"
       CHAIN_ID:
@@ -429,7 +504,8 @@ tasks:
       # stop the docker instance
       - docker kill {{.CHAIN_ID}}
   
-  chain-delete-*:
+  internal-chain-delete-*:
+    internal: true
     env: 
       DOCKER_DEFAULT_PLATFORM: linux/amd64
     vars:
@@ -446,7 +522,8 @@ tasks:
       - docker rm {{.CHAIN_ID}}
       - docker volume rm -f {{.VOLUME_NAME}} 
 
-  chain-stop-*:
+  internal-chain-stop-*:
+    internal: true
     env: 
       DOCKER_DEFAULT_PLATFORM: linux/amd64
     vars:
@@ -457,7 +534,8 @@ tasks:
     cmds:
       - docker kill {{.CHAIN_ID}}
   
-  chain-start-*:
+  internal-chain-start-*:
+    internal: true
     env: 
       DOCKER_DEFAULT_PLATFORM: linux/amd64
     vars:
@@ -472,29 +550,21 @@ tasks:
       - docker restart {{.CHAIN_ID}}
       - docker exec -d {{.CHAIN_ID}} {{.BINARY}} start --home "{{.CHAIN_DIR}}"
 
-  chain-sh-*:
-    env: 
-      DOCKER_DEFAULT_PLATFORM: linux/amd64
-    vars:
-      ID: "{{index .MATCH 0}}"
-      CHAIN_ID:
-        sh: jq -r '.{{.ID}}_local.chain_id' network.json
-    cmds:
-      - docker exec -it {{.CHAIN_ID}} /bin/sh 
   
   ##### CLI PREP (both deployer and onchain-tests) #####
 
   cli-prepare:
-    deps: [cli-prepare-deployer, cli-prepare-onchain-tests]
+    desc: Prepares the CLI for deployment and onchain tests. one-time setup
+    deps: [internal-cli-prepare-deployer, internal-cli-prepare-onchain-tests]
     
-  cli-prepare-deployer:
+  internal-cli-prepare-deployer:
     internal: true
     dir: deployer
     cmds:
       - npm install
       - task: deployer-build
 
-  cli-prepare-onchain-tests:
+  internal-cli-prepare-onchain-tests:
     internal: true
     dir: onchain-tests
     cmds:
@@ -502,20 +572,24 @@ tasks:
       - task: onchain-tests-build
 
   ##### DEPLOYER #####
+  # These tasks are all internal, since it doesn't make sense to run them outside of contract tasks
 
   deployer-build:
+    desc: Builds the deployer. Only need to run this if the deployer tool itself changes
     dir: deployer
     cmds:
       - npm run build 
 
-  deployer-deploy-*:
+  internal-deployer-deploy-*:
+    internal: true
     vars:
       TARGET: "{{index .MATCH 0}}"
     cmds:
       - task: deployer-build
-      - task: deployer-only-deploy-{{.TARGET}} 
+      - task: internal-deployer-only-deploy-{{.TARGET}} 
 
-  deployer-only-deploy-*:
+  internal-deployer-only-deploy-*:
+    internal: true
     dir: deployer
     vars:
       TARGET: "{{index .MATCH 0}}"
@@ -525,14 +599,16 @@ tasks:
     cmds:
       - node dist/js/deployer.js --action=deploy
 
-  deployer-migrate-*:
+  internal-deployer-migrate-*:
+    internal: true
     vars:
       TARGET: "{{index .MATCH 0}}"
     cmds:
       - task: deployer-build
-      - task: deployer-only-migrate-{{.TARGET}} 
+      - task: internal-deployer-only-migrate-{{.TARGET}} 
 
-  deployer-only-migrate-*:
+  internal-deployer-only-migrate-*:
+    internal: true
     dir: deployer
     vars:
       TARGET: "{{index .MATCH 0}}"
@@ -544,11 +620,16 @@ tasks:
 
   #### TESTS #### 
   onchain-tests-build:
+    desc: Rebuilds the test-runner tool. Typically used with test-only-onchain-*
+    internal: true
     dir: onchain-tests 
     cmds:
       - npm run build 
 
   test-onchain-*:
+    desc: |
+      test-onchain-{{.DESC_TARGETS}}
+      Rebuilds the test-runner tool and runs onchain tests for the specified target
     vars:
       TARGET: "{{index .MATCH 0}}"
     cmds:
@@ -556,6 +637,9 @@ tasks:
       - task: test-only-onchain-{{.TARGET}} 
 
   test-only-onchain-*:
+    desc: |
+      test-only-onchain-{{.DESC_TARGETS}}
+      Runs onchain tests for the specified target, assumes the test-runner tool is already built
     dir: onchain-tests
     vars:
       TARGET: "{{index .MATCH 0}}"
@@ -566,6 +650,7 @@ tasks:
       - node dist/js/onchain-tests.js
 
   test-offchain:
+    desc: Run offchain / multi-test tests
     dir: packages/multitest
     cmds:
       - cargo test

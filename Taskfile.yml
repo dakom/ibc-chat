@@ -120,7 +120,7 @@ tasks:
       Builds the contracts
       The tool (native, docker, or docker_arm) is set via the CONTRACTS_BUILD_TOOL env var 
     cmds:
-      - task: contracts-build-{{.CONTRACTS_BUILD_TOOL}}
+      - task: internal-contracts-build-{{.CONTRACTS_BUILD_TOOL}}
 
   contracts-deploy-*:
     desc: |

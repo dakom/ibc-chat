@@ -42,6 +42,9 @@ extern "C" {
 
     #[wasm_bindgen(method, getter)]
     pub fn denom(this: &WalletSigning) -> String;
+
+    #[wasm_bindgen(method, getter)]
+    pub fn cosmjs(this: &WalletSigning) -> CosmJs;
 }
 
 #[wasm_bindgen(module = "/src/bindings/wallet.js")]
@@ -121,5 +124,28 @@ extern "C" {
     #[wasm_bindgen(catch)]
     pub async fn ffi_wallet_balance(
         wallet: &JsValue,
+    ) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(catch)]
+    pub async fn ffi_search_tx(
+        wallet: &JsValue,
+        query: &str,
+    ) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(catch)]
+    pub async fn ffi_get_block(
+        wallet: &JsValue,
+        height: Option<u32>,
+    ) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(catch)]
+    pub async fn ffi_get_height(
+        wallet: &JsValue,
+    ) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(catch)]
+    pub fn ffi_decode_tx(
+        wallet: &JsValue,
+        bytes: &JsValue,
     ) -> Result<JsValue, JsValue>;
 }

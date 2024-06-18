@@ -1,5 +1,5 @@
 use dominator::svg;
-use crate::{locale::LOCALE, prelude::*, theme::responsive::MediaQueryWidth};
+use crate::{locale::LOCALE, prelude::*};
 
 pub struct MoreArrow {
 }

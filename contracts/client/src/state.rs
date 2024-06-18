@@ -7,7 +7,7 @@ pub mod meta;
 use cosmwasm_std::{Api, Deps, DepsMut, Empty, Env, QuerierWrapper, Storage};
 use anyhow::Result;
 use cw2::get_contract_version;
-use shared::response::ResponseBuilder;
+use shared::{contract_kind::ContractKind, response::ResponseBuilder};
 
 
 /// State is a wrapper around the environment and storage, and provides a simplified API
@@ -49,7 +49,7 @@ impl<'a> StateContext<'a> {
             },
             StateContext {
                 store: deps.storage,
-                response: ResponseBuilder::new(contract_version),
+                response: ResponseBuilder::new(contract_version, ContractKind::Client),
             },
         ))
     }

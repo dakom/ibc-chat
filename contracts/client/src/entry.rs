@@ -3,7 +3,7 @@ use cosmwasm_std::{
 };
 use cw2::{get_contract_version, set_contract_version};
 use shared::{
-    ibc::TIMEOUT_SECONDS, msg::{contract::client::{ChatMessage, ChatMessagesResp, ExecuteMsg, InfoResp, InstantiateMsg, QueryMsg}, ibc::IbcExecuteMsg}, response::{QueryResponseExt, ResponseBuilder}
+    ibc::TIMEOUT_SECONDS, msg::{chat_message::{ChatMessage, ChatMessageWithIndex}, contract::client::{ChatMessagesResp, ExecuteMsg, InfoResp, InstantiateMsg, QueryMsg}, ibc::IbcExecuteMsg}, response::{QueryResponseExt, ResponseBuilder}
 };
 use anyhow::{Context, Result};
 
@@ -42,11 +42,14 @@ pub fn execute(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> R
                 message: message.clone(),
             };
             // First we store the message in our local state
-            state.push_chat_message(&mut ctx, message.clone())?;
+            let index = state.push_chat_message(&mut ctx, message.clone())?;
 
             // Then we send it to the server for broadcasting
             let msg = IbcExecuteMsg::SendMessageToServer { 
-                message
+                message: ChatMessageWithIndex {
+                    msg: message,
+                    index
+                }
             };
     
             // outbound IBC message, where packet is then received on other chain
@@ -81,8 +84,8 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> Result<QueryResponse> {
             };
             info.query_result()
         },
-        QueryMsg::ChatMessages { after_id, order } => {
-            let messages = state.get_chat_messages(store, after_id, order.map(|order| order.into()))?;
+        QueryMsg::ChatMessages { after_index, order } => {
+            let messages = state.get_chat_messages(store, after_index, order.map(|order| order.into()))?;
             ChatMessagesResp {
                 messages
             }.query_result()

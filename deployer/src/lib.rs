@@ -41,6 +41,7 @@ pub async fn run() -> Result<(), JsValue> {
     Ok(())
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum Action {
     Deploy,
     Migrate,

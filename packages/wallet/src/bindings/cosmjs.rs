@@ -57,6 +57,21 @@ pub mod node {
         static DIRECT_SECP_256_K1_HD_WALLET: DirectSecp256k1HdWallet;
     }
 
+    #[wasm_bindgen(module = "@cosmjs/proto-signing")]
+    extern "C" {
+        #[derive(Debug, Clone)]
+        type decodeTxRaw;
+        #[wasm_bindgen(js_name = "decodeTxRaw")]
+        static DECODE_TX_RAW: decodeTxRaw;
+    }
+
+    #[wasm_bindgen(module = "cosmjs-types/cosmos/tx/v1beta1/tx")]
+    extern "C" {
+        #[derive(Debug, Clone)]
+        type TxRaw;
+        #[wasm_bindgen(js_name = "TxRaw")]
+        static TX_RAW: TxRaw;
+    }
 
 }
 

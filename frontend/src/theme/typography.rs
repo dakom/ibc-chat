@@ -2,8 +2,6 @@ use dominator::{class, styles};
 use futures_signals::signal::SignalExt;
 use once_cell::sync::Lazy;
 
-use crate::theme::responsive::MediaQueryWidth;
-
 const FONT_FAMILY:&str = r#""Noto Sans", sans-serif"#;
 
 #[derive(Clone, Copy, Debug, PartialEq)]

@@ -4,16 +4,17 @@
 use crate::{bindings::{cosmjs::CosmJs, wallet_ffi::*}, config::*, contract_traits::*, response_types::*};
 use cosmwasm_std::Coin;
 use serde::de::DeserializeOwned;
-use shared::msg::contract::{
+use shared::{contract_kind::ContractKind, msg::contract::{
     client::{ChatMessagesResp, ExecuteMsg as ClientExecuteMsg, InfoResp as ClientInfoResp, QueryMsg as ClientQueryMsg},
     server::{InfoResp as ServerInfoResp, QueryMsg as ServerQueryMsg},
-};
+}};
 use anyhow::Result;
 
 // The specific struct for "client" contract + WalletSigning
+// Cloning is cheap
 #[derive(Clone)]
 pub struct WalletSigningContractClient {
-    wallet: WalletSigning,
+    pub wallet: WalletSigning,
 }
 
 // where it all gets tied together :)
@@ -48,9 +49,10 @@ impl ContractExec<ClientExecuteMsg, TxResp> for WalletSigningContractClient {
 }
 
 // The specific struct for "server" contract + WalletSigning
+// Cloning is cheap
 #[derive(Clone)]
 pub struct WalletSigningContractServer {
-    wallet: WalletSigning,
+    pub wallet: WalletSigning,
 }
 
 // where it all gets tied together :)

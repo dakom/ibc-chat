@@ -67,7 +67,7 @@ async fn test_message_broadcast() -> Result<()> {
 
         let ChatMessagesResp{messages: messages_before}  = client_contract.query_chat_messages(None, Some(Order::Descending)).await?;
 
-        let mut message_cursor = messages_before.first().map(|m| m.id);
+        let mut message_cursor = messages_before.first().map(|m| m.index);
         let mut waiting_network_ids = HashSet::new();
 
         for other_wallet in Wallet::all_clients() {
@@ -103,17 +103,17 @@ async fn test_message_broadcast() -> Result<()> {
                 }
             }).await?;
 
-            message_cursor = new_messages.last().map(|m| m.id);
+            message_cursor = new_messages.last().map(|m| m.index);
 
             let got_new_messages = !new_messages.is_empty();
 
             for message in new_messages {
                 if waiting_network_ids.remove(&message.msg.network_id) {
-                    log::info!("Got new chat message: (#{}) {}", message.id, message.msg.message);
+                    log::info!("Got new chat message: (#{}) {}", message.index, message.msg.message);
                 } else if message.msg.network_id == network_id {
                     // this is unexpected, since we only sent messages from other networks
                     // but it isn't necessarily an error with maybe some old packets or something...
-                    log::warn!("Got echo message: (#{}) {}", message.id, message.msg.message);
+                    log::warn!("Got echo message: (#{}) {}", message.index, message.msg.message);
                 }
             }
 

@@ -1,6 +1,6 @@
 use cosmwasm_std::{Order, Storage};
 use cw_storage_plus::{Bound, Item, Map};
-use shared::msg::{contract::client::{event::ChatMessageEvent, ChatMessage, ChatMessageId, ChatMessageWithId}, network::NetworkId};
+use shared::msg::network::NetworkId;
 
 use super::{State, StateContext};
 use anyhow::Result;

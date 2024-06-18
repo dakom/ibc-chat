@@ -25,6 +25,7 @@ gloo-timers = {version = "0.3.0", features = ["futures"]}
 getrandom = { version = "0.2.12", features = ["js"] }
 rand = "0.8.5"
 cosmwasm-std = "2.0.3"
+base64 = "0.22.1"
 
 [dependencies.web-sys]
 version = "0.3.69"

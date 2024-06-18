@@ -22,7 +22,8 @@ pub struct Config {
     pub auto_connect: bool,
     // for debugging, jump into an initial page (will wait until wallet is connected, works with auto_connect)
     pub start_route: Mutex<Option<Route>>,
-    pub query_poll_delay_ms: u32,
+    pub messages_poll_delay_ms: u32,
+    pub events_poll_delay_ms: u32,
 }
 
 impl Config {
@@ -42,9 +43,10 @@ cfg_if::cfg_if! {
                 default_lang: None,
                 auto_connect: true,
                 //auto_connect: false,
-                //start_route: Mutex::new(Some(Route::Chat)),
-                start_route: Mutex::new(None),
-                query_poll_delay_ms: 3000,
+                start_route: Mutex::new(Some(Route::Chat)),
+                //start_route: Mutex::new(None),
+                messages_poll_delay_ms: 1000,
+                events_poll_delay_ms: 1000,
             }
         });
     } else {
@@ -55,7 +57,8 @@ cfg_if::cfg_if! {
                 default_lang: None,
                 auto_connect: false,
                 start_route: Mutex::new(None),
-                query_poll_delay_ms: 3000,
+                messages_poll_delay_ms: 3000,
+                events_poll_delay_ms: 3000,
 
             }
         });

@@ -55,18 +55,22 @@ export async function ffi_connect(cosmjs, networkConfig, chainEnv, seedPhrase) {
         neutron: {
             ...neutron,
             networkId: "neutron",
+            cosmjs,
         },
         kujira: {
             ...kujira,
             networkId: "kujira",
+            cosmjs,
         },
         stargaze: {
             ...stargaze, 
             networkId: "stargaze",
+            cosmjs,
         },
         nois: {
             ...nois, 
             networkId: "nois",
+            cosmjs,
         },
     }
 }
@@ -154,4 +158,18 @@ export async function ffi_contract_exec_funds(wallet, contractAddress, msg, fund
 export async function ffi_wallet_balance(wallet) {
     const coin = await wallet.client.getBalance(wallet.address, wallet.denom);
     return Number(coin.amount)
+}
+
+export async function ffi_search_tx(wallet, query) {
+    return await wallet.client.searchTx(query);
+}
+
+export async function ffi_get_block(wallet, height) {
+    const resp = await wallet.client.getBlock(height);
+
+    return resp;
+}
+
+export async function ffi_get_height(wallet) {
+    return await wallet.client.getHeight();
 }

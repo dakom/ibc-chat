@@ -6,9 +6,11 @@
 use std::cell::RefCell;
 
 use crate::{bindings::{cosmjs::CosmJs, wallet_ffi::*}, config::*, contract_traits::*, response_types::*, wallet_contract_impls::{WalletSigningContractClient, WalletSigningContractServer}};
+use base64::{prelude::BASE64_STANDARD, Engine};
 use cosmwasm_std::{Addr, Coin};
+use js_sys::Uint8Array;
 use serde::{de::DeserializeOwned, Serialize};
-use shared::msg::network::NetworkId;
+use shared::{contract_kind::ContractKind, msg::network::NetworkId};
 use wasm_bindgen::prelude::*;
 use anyhow::{anyhow, Result};
 
@@ -224,6 +226,36 @@ impl WalletSigning {
 
         Ok(resp)
     }
+
+    pub async fn search_tx(
+        &self,
+        query: &str,
+    ) -> Result<Vec<IndexedTx>> {
+        let resp = json_deserialize_result(
+            ffi_search_tx(self, query).await,
+        )?;
+
+        Ok(resp)
+    }
+
+    pub async fn get_block(
+        &self,
+        height: Option<u32>,
+    ) -> Result<BlockResponse> {
+        let resp = json_deserialize_result(
+            ffi_get_block(self, height).await,
+        )?;
+
+        Ok(resp)
+    }
+
+    pub async fn get_height(&self) -> Result<u32> {
+        let resp = json_deserialize_result(
+            ffi_get_height(self).await
+        )?;
+        Ok(resp)
+    }
+
 }
 
 

@@ -1,20 +1,12 @@
 use dominator::stylesheet;
-use crate::{
-    prelude::*, 
-    theme::responsive::MediaQueryWidth,
-};
+use crate::{prelude::*, theme::responsive::WindowSize};
 
 pub fn init() {
     stylesheet!(":root", {
         .style("box-sizing", "border-box")
-        .style_signal("font-size", MediaQueryWidth::signal().map(|query_width| {
-            match query_width {
-                MediaQueryWidth::SmallPhone => "6px",
-                MediaQueryWidth::Phone => "10px",
-                MediaQueryWidth::Tablet => "12px",
-                MediaQueryWidth::SmallDesktop => "14px",
-                MediaQueryWidth::Desktop => "16px",
-            }
+        .style_signal("font-size", WindowSize::width_signal().map(|width| { 
+            let scale_ratio = width / 1920.0;
+            format!("{}px", scale_ratio * 16.0)
         }))
     });
 

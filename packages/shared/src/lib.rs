@@ -5,3 +5,4 @@ pub mod response;
 pub mod ibc;
 pub mod tx;
 pub mod event;
+pub mod contract_kind;

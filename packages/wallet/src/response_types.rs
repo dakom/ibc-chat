@@ -1,4 +1,5 @@
 use cosmwasm_std::Event;
+use js_sys::Uint8Array;
 use serde::{Deserialize, Serialize};
 use shared::tx::CosmosResponseExt;
 
@@ -120,4 +121,56 @@ pub struct ContractMigrateResponse {
     /** @deprecated Not filled in Cosmos SDK >= 0.50. Use events instead. */
     pub logs: Option<Vec<Logs>>,
     pub events: Option<Vec<Event>>
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct BlockResponse {
+    /** The ID is a hash of the block header (uppercase hex) */
+    pub id : String,
+    pub header: BlockHeader,
+    /** Array of raw transactions */
+    pub txs: Vec<Vec<u8>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct BlockHeader {
+    pub version: BlockHeaderVersion,
+    pub height: u64,
+    #[serde(rename = "chainId")]
+    pub chain_id: String,
+    /** An RFC 3339 time string like e.g. '2020-02-15T10:39:10.4696305Z' */
+    pub time: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct BlockHeaderVersion {
+    pub block: String,
+    pub app: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IndexedTx {
+    /** The height of the block this transaction was included in */
+    pub height: u64,
+    /** Transaction hash (might be used as transaction ID). Guaranteed to be non-empty upper-case hex */
+    pub hash: String,
+    /** Transaction execution error code. 0 on success. */
+    pub code: u64,
+    pub events: Vec<Event>,
+    /**
+    * A string-based log document.
+    *
+    * This currently seems to merge attributes of multiple events into one event per type
+    * (https://github.com/tendermint/tendermint/issues/9595). You might want to use the `events`
+    * field instead.
+    */
+    #[serde(rename = "rawLog")]
+    pub raw_log: String,
+    /** Raw transaction bytes stored in Tendermint. */
+    // Use `decodeTxRaw` from @cosmjs/proto-signing to decode this.
+    pub tx: Vec<u8>,
+    #[serde(rename = "gasUsed")]
+    pub gas_used: u64,
+    #[serde(rename = "gasWanted")]
+    pub gas_wanted: u64,
 }

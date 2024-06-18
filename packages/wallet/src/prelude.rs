@@ -3,3 +3,4 @@ pub use crate::wallet::*;
 pub use crate::config::*;
 pub use crate::response_types::*;
 pub use crate::bindings::wallet_ffi::WalletSigning;
+pub use shared::contract_kind::ContractKind;

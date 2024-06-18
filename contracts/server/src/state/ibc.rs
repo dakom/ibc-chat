@@ -5,7 +5,7 @@ use cw_storage_plus::{Deque, Item, Map};
 use shared::{ibc::{
     event::{IbcChannelCloseEvent, IbcChannelConnectEvent},
     validate_ibc_channel_order_and_version, TIMEOUT_SECONDS,
-}, msg::ibc::IbcExecuteMsg};
+}, msg::{chat_message::event::ChatMessageEvent, ibc::IbcExecuteMsg}};
 use anyhow::Result;
 
 use super::{State, StateContext};
@@ -53,7 +53,7 @@ impl State<'_> {
 
         CLIENT_CHANNELS.save(ctx.store, key, channel)?;
 
-        ctx.response_mut()
+        ctx.response
             .add_event(IbcChannelConnectEvent { channel });
 
         Ok(())
@@ -67,7 +67,7 @@ impl State<'_> {
         let channel = msg.channel();
         CLIENT_CHANNELS.remove(ctx.store, channel_to_key(&channel));
 
-        ctx.response_mut()
+        ctx.response
             .add_event(IbcChannelCloseEvent { channel });
         Ok(())
     }
@@ -82,20 +82,25 @@ impl State<'_> {
             .and_then(|msg| {
                 match msg {
                     IbcExecuteMsg::SendMessageToServer{ message } => {
-                        let mut messages = Vec::new();
+                        let mut response_messages = Vec::new();
                         for item in CLIENT_CHANNELS.range(ctx.store, None, None, Order::Ascending) { 
-                            let (port_id, channel) = item?;
-                            if port_id != recv_msg.packet.src.port_id {
-                                messages.push(IbcMsg::SendPacket {
+                            let (_, channel) = item?;
+                            if channel.counterparty_endpoint != recv_msg.packet.src {
+
+                                response_messages.push(IbcMsg::SendPacket {
                                     channel_id: channel.endpoint.channel_id,
-                                    data: to_json_binary(&IbcExecuteMsg::SendMessageToClient { message: message.clone() })?,
+                                    data: to_json_binary(&IbcExecuteMsg::SendMessageToClient { message: message.msg.clone() })?,
                                     timeout: IbcTimeout::with_timestamp(self.env.block.time.plus_seconds(TIMEOUT_SECONDS)),
                                 });
                             }
                         }
 
-                        for message in messages {
-                            ctx.response_mut().add_message(message);
+                        ctx.response.add_event(ChatMessageEvent {
+                            message
+                        });
+
+                        for response_message in response_messages {
+                            ctx.response.add_message(response_message);
                         }
                         Ok(())
                     },

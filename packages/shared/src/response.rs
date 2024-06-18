@@ -8,6 +8,7 @@ use cw2::ContractVersion;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
+use crate::contract_kind::ContractKind;
 use crate::ibc::IbcAck;
 
 /// Helper data type, following builder pattern, for constructing a [Response].
@@ -24,22 +25,21 @@ enum EventType {
     },
 }
 
-fn standard_event_attributes(
-    ContractVersion { contract, version }: ContractVersion,
-) -> Vec<(&'static str, String)> {
+fn standard_event_attributes( version: ContractVersion, kind: ContractKind) -> Vec<(&'static str, String)> {
     vec![
-        ("contract_version", version),
-        ("contract_kind", contract),
+        ("contract_version", version.version),
+        ("contract_name", version.contract),
+        ("contract_kind", kind.to_string()),
     ]
 }
 
 impl ResponseBuilder {
     /// Initialize a new builder.
-    pub fn new(contract_version: ContractVersion) -> Self {
+    pub fn new(contract_version: ContractVersion, contract_kind: ContractKind) -> Self {
         ResponseBuilder {
             resp: Response::new(),
             event_type: EventType::EmitEvents {
-                common_attrs: standard_event_attributes(contract_version),
+                common_attrs: standard_event_attributes(contract_version, contract_kind),
             },
             event_type_count: HashMap::new(),
         }

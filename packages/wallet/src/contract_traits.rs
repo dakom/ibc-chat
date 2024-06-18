@@ -3,7 +3,7 @@ use anyhow::Result;
 use cosmwasm_std::{Coin, Order, Uint64};
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{config::{ContractKind, DeployContractConfig, DEPLOY_CONFIG}, prelude::WalletSigning, response_types::*};
+use crate::{config::{DeployContractConfig, DEPLOY_CONFIG}, prelude::WalletSigning, response_types::*};
 use shared::msg::contract::{
     client::{ChatMessagesResp, ExecuteMsg as ClientExecuteMsg, InfoResp as ClientInfoResp, QueryMsg as ClientQueryMsg},
     server::{InfoResp as ServerInfoResp, QueryMsg as ServerQueryMsg},
@@ -32,8 +32,8 @@ pub trait ContractClient<ExecResponse>: ContractQuery<ClientQueryMsg> + Contract
         self.query(&ClientQueryMsg::Info {}).await
     }
 
-    async fn query_chat_messages(&mut self, after_id: Option<Uint64>, order: Option<Order>) -> Result<ChatMessagesResp> {
-        self.query(&ClientQueryMsg::ChatMessages { after_id, order: order.map(|order| order.into()) }).await
+    async fn query_chat_messages(&mut self, after_index: Option<Uint64>, order: Option<Order>) -> Result<ChatMessagesResp> {
+        self.query(&ClientQueryMsg::ChatMessages { after_index, order: order.map(|order| order.into()) }).await
     }
 
     async fn exec_send_message(&mut self, msg: impl Into<String>) -> Result<ExecResponse> {

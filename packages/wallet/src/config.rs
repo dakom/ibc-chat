@@ -6,7 +6,7 @@ use futures::Future;
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use anyhow::{Result, anyhow};
-use shared::msg::network::NetworkId;
+use shared::{contract_kind::ContractKind, msg::network::NetworkId};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Environment {
@@ -88,20 +88,6 @@ impl DeployConfig {
         match contract {
             ContractKind::Client => network_config.client = Some(config),
             ContractKind::Server => network_config.server = Some(config),
-        }
-    }
-}
-#[derive(Debug, Clone, Copy)]
-pub enum ContractKind {
-    Client,
-    Server,
-}
-
-impl std::fmt::Display for ContractKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ContractKind::Client => write!(f, "client"),
-            ContractKind::Server => write!(f, "server"),
         }
     }
 }

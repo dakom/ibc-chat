@@ -64,6 +64,7 @@
 1. Create docker images for chains:
    - Neutron: 
       - clone [https://github.com/neutron-org/neutron](https://github.com/neutron-org/neutron)
+      - see https://docs.neutron.org/neutron/build-and-run/neutron-build#1-make-sure-you-have-the-required-golang-version for the correct release version
       - `docker buildx build --load --build-context app=. -t local-neutron --build-arg BINARY=neutrond .`
    - Kujira
       - clone [https://github.com/Team-Kujira/pond-images](https://github.com/Team-Kujira/pond-images)

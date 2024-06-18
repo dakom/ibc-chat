@@ -575,7 +575,7 @@ tasks:
   # These tasks are all internal, since it doesn't make sense to run them outside of contract tasks
 
   deployer-build:
-    desc: Builds the deployer. Only need to run this if the deployer tool itself changes
+    desc: Builds the deployer. Only need to run this if the deployer tool itself changes (e.g. contract Instantiation / Migration messages change)
     dir: deployer
     cmds:
       - npm run build 

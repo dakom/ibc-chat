@@ -37,7 +37,7 @@
 * Auto-generated Rustdoc for [shared types](https://dakom.github.io/ibc-chat/doc/shared/) contract messages, including IBC and events (from the `shared` package) and [wallet types](https://dakom.github.io/ibc-chat/doc/wallet/) for wallet crate.
 * Client-side "sdk-like" methods (i.e. contract API) are shared between all clients (including on-chain, off-chain, and frontend)
   - e.g. the [ContractClient](https://dakom.github.io/ibc-chat/doc/wallet/contract_traits/trait.ContractClient.html) and [ContractServer](https://dakom.github.io/ibc-chat/doc/wallet/contract_traits/trait.ContractServer.html) - which are traits with implementations everywhere. Just call the methods and it works, whether in multi-test, on-chain tests, or frontend!
-* Taskfile with simple commands to make setup and development _much_ less painful.
+* Taskfile with simple commands to make setup and development _much_ less painful (`task --list-all` to skip past the Readme, sorta).
 * Shared config, one file to configure the network, one auto-generated file to maintain contract addresses, ibc ports, etc. across all delivery flows
 
 # [Live Demo](https://dakom.github.io/ibc-chat/)
@@ -202,7 +202,7 @@ Onchain tests use the `cli` semantics and follow the same "only"-style optimizat
 
 * `task contracts-[deploy | migrate]-[local | testnet]` will do everything needed (build and deploy/migrate)
 
-For more fine-grained control: contracts are built via `task contracts-build-*` and deployed via `task deployer-[only?]-[deploy | migrate]-[local | testnet]`, so these can all be run separately to save steps.
+For more fine-grained control: contracts can be pre-built via `task contracts-build`
 
 The build tool used is set by the `CONTRACTS_BUILD_TOOL` env var
 
@@ -210,9 +210,7 @@ The build tool used is set by the `CONTRACTS_BUILD_TOOL` env var
 * docker: the docker optimizer tool
 * docker_arm: the docker optimizer tool for arm systems (e.g. apple silicon)
 
-For the sake of speed, the default is to run the `deployer` command _with_ the "only" flag - which is why the setup instructions included preparing the cli, i.e. there's no need to rebuild the deployer tool itself each time contracts change.
-
-However, if you change the Instantiation message for contracts, for example, remember to `task deployer-build` to update the tool itself.
+For the sake of speed, the `deployer` tool is _not_ rebuilt every time it's run - which is why the setup instructions included preparing the cli. If the tool does need to be rebuilt, e.g. if Instantiation or Migration messages change, remember to `task deployer-build` to update the tool itself.
 
 # CLI
 
@@ -220,10 +218,7 @@ Currently there are two cli tools: the deployer and the onchain-tests. This coul
 
 Similar to the frontend, they are written in Rust/WASM with JS bindings to CosmJS.
 
-If the tool itself doesn't need to be rebuilt, then it can be run like `{cli}-only-{cmd}`. Onchain tests use "test" for the cli part while deployer uses "deployer" 
-
-So for example: `test-only-onchain-local` will only run the CLI tests without rebuilding the tool, while `test-onchain-local` will build the tool and then run the tests.
-Similarly: `deployer-only-deploy-local` will only run the CLI tests without rebuilding _the tool_, while `deployer-deploy-local` will build the tool and then run the tests (notice that it's only the tool that's being discussed here, contracts are built via a separate command as described above)
+If the tool itself doesn't need to be rebuilt, then it can be run with the `-only` segment... but this is typically not called directly, and in some cases hidden under an `internal` Taskfile rule. 
 
 # WALLET
 

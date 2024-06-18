@@ -427,7 +427,7 @@ tasks:
         bond_denom
       GENESIS_CMD: '{{ if eq .ID "neutron" "nois" }}{{else}}genesis {{end}}'
     cmds:
-      - task: chain-delete-{{.ID}}
+      - task: internal-chain-delete-{{.ID}}
       - echo "Creating chain {{.CHAIN_ID}}"
       # create the docker instance
       - docker run -d --name {{.CHAIN_ID}} 

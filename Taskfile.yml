@@ -34,7 +34,7 @@ tasks:
       RUSTFLAGS: --cfg=web_sys_unstable_apis 
       CHAINENV: "testnet"
     cmds:
-      - trunk build --release --public-url=https://dakom.github.io/w3bay/
+      - trunk build --release --public-url=https://dakom.github.io/ibc-chat/
 
   internal-frontend-dev-nomedia-*:
     internal: true

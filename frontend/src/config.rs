@@ -42,16 +42,16 @@ cfg_if::cfg_if! {
                 default_lang: None,
                 auto_connect: true,
                 //auto_connect: false,
-                start_route: Mutex::new(Some(Route::Chat)),
-                //start_route: Mutex::new(None),
+                //start_route: Mutex::new(Some(Route::Chat)),
+                start_route: Mutex::new(None),
                 query_poll_delay_ms: 3000,
             }
         });
     } else {
         pub static CONFIG: Lazy<Config> = Lazy::new(|| {
             Config {
-                root_path: "w3bay",
-                media_root: "https://dakom.github.io/w3bay/media",
+                root_path: "ibc-chat",
+                media_root: "https://dakom.github.io/ibc-chat/media",
                 default_lang: None,
                 auto_connect: false,
                 start_route: Mutex::new(None),

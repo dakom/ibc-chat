@@ -7,6 +7,7 @@ The world's worst chat
 Uses IBC to communicate between clients and servers.
 
 - [Cool stuff](#cool-stuff)
+- [Live demo](#live-demo)
 - Setup
    - [Prerequisites](#prerequisites)
    - [Local chains](#local-chains)
@@ -28,6 +29,10 @@ Uses IBC to communicate between clients and servers.
   - e.g. the [ContractClient](https://dakom.github.io/ibc-chat/doc/wallet/contract_traits/trait.ContractClient.html) and [ContractServer](https://dakom.github.io/ibc-chat/doc/wallet/contract_traits/trait.ContractServer.html) - which are traits with implementations everywhere. Just call the methods and it works, whether in multi-test, on-chain tests, or frontend!
 * Taskfile with simple commands to make setup and development _much_ less painful.
 * Shared config, one file to configure the network, one auto-generated file to maintain contract addresses, ibc ports, etc. across all delivery flows
+
+# [Live Demo](https://dakom.github.io/ibc-chat/)
+
+Requires running a relayer!
 
 # Setup 
 

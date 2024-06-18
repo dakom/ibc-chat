@@ -48,7 +48,7 @@ impl Landing {
                 .child(html!("img", {
                     .style("width", "10rem")
                     .style("height", "10rem")
-                    .attribute("src", &CONFIG.app_image_url("w3bay-logo.jpg"))
+                    .attribute("src", &CONFIG.app_image_url("ibc-chat-logo.jpg"))
                 }))
                 .child(html!("div", {
                     .style("margin-top", "2rem")

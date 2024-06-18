@@ -1,10 +1,20 @@
-# IBC Chat 
 
-The world's worst chat
+<h1 align="center">
+   IBC Chat 
+</h1>
+<h1 align="center">
+   The world's worst* chat application
+</h1>
+<p align="center" width="100%">
+    <img width="33%" src="media/ibc-chat-logo-small.jpg">
+</p>
 
-(that is, the slowest, most expensive, and fragile... but technically interesting!)
 
-Uses IBC to communicate between clients and servers.
+<div align="center">
+(*that is, the slowest, most expensive, and fragile... but technically interesting!)
+</div>
+
+# Table of Contents
 
 - [Cool stuff](#cool-stuff)
 - [Live demo](#live-demo)

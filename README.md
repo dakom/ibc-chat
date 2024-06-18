@@ -88,10 +88,10 @@ Debugging individual chains by shell can be done via `task chain-sh-[neutron | k
 If targeting locally, make sure you've started the local chains (see `Local Chains` above)
 
 If you already have all the depenencies, wallet setup, etc., then it's as easy as:
-
-1. `task cli-prepare`
-2. `task contracts-deploy-[local | testnet]`
-3. `task relayer-setup-[local | testnet]`
+1. edit `.env.example` to add your seed phrases and rename to .env
+2. `task cli-prepare`
+3. `task contracts-deploy-[local | testnet]`
+4. `task relayer-setup-[local | testnet]`
 
 That's all for initial setup, then, to get a live working environment
 

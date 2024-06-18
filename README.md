@@ -42,7 +42,9 @@
 
 # [Live Demo](https://dakom.github.io/ibc-chat/)
 
-Requires running a relayer!
+#### Requires running a relayer!
+
+#### RPC endpoints may also rate-limit, block cors, etc... real-world would require a private node, most likely
 
 # Setup 
 

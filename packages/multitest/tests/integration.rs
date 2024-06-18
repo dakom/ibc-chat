@@ -6,11 +6,12 @@ async fn integration() {
 
     let mut client = app.clone().into_contract_client(); 
 
+
     let resp = client.exec_send_message("hello world").await;
 
+    // TODO - we want to get IBC working so that this assertion can pass
     // this should fail as we have not connected an ibc channel
     assert!(resp.is_err());
 
-    // let's try to connect a channel
-    // TODO ;)
+    // TODO (after above TODO)- run same exact test as onchain-tests/src/runner.rs
 }

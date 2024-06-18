@@ -53,7 +53,7 @@ jobs:
       run: cp -R ./target/doc ./frontend/dist/doc
 
     - name: copy required media files
-      run: cp -R ./MEDIA/frontend ./frontend/dist/media
+      run: cp -R ./media/frontend ./frontend/dist/media
 
     - uses: actions/upload-pages-artifact@v1
       with:

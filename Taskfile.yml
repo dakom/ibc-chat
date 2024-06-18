@@ -49,7 +49,7 @@ tasks:
 
   internal-localmedia-dev:
     internal: true
-    dir: ./MEDIA/frontend
+    dir: ./media/frontend
     cmds: 
       - http-server --gzip --cors -p 9000
 

@@ -15,6 +15,7 @@ use crate::prelude::*;
 #[wasm_bindgen(start)]
 pub async fn run() -> Result<(), JsValue> {
     init_logger();
+
     std::panic::set_hook(Box::new(on_panic));
 
     Wallet::connect(

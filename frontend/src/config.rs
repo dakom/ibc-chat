@@ -43,8 +43,8 @@ cfg_if::cfg_if! {
                 default_lang: None,
                 auto_connect: true,
                 //auto_connect: false,
-                start_route: Mutex::new(Some(Route::Chat)),
-                //start_route: Mutex::new(None),
+                //start_route: Mutex::new(Some(Route::Chat)),
+                start_route: Mutex::new(None),
                 messages_poll_delay_ms: 1000,
                 events_poll_delay_ms: 1000,
             }

@@ -14,6 +14,11 @@
 (*that is, the slowest, most expensive, and fragile... but technically interesting!)
 </div>
 
+# Demo Video
+
+[![IBC-CHAT DEMO](https://img.youtube.com/vi/PJfiA4VYXzQ/0.jpg)](https://www.youtube.com/watch?v=PJfiA4VYXzQ)
+
+
 # Table of Contents
 
 - [Cool stuff](#cool-stuff)
@@ -30,6 +35,7 @@
    - [End to End Tests](#end-to-end-tests)
    - [Contracts](#end-to-end-tests)
    - [CLI](#cli)
+
 
 # Cool stuff
 

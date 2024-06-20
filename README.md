@@ -16,7 +16,7 @@
 
 # Demo Video
 
-[![IBC-CHAT DEMO](https://img.youtube.com/vi/PJfiA4VYXzQ/0.jpg)](https://www.youtube.com/watch?v=PJfiA4VYXzQ)
+[![IBC-CHAT DEMO](media/youtube-screenshot.jpg)](https://www.youtube.com/watch?v=PJfiA4VYXzQ)
 
 
 # Table of Contents

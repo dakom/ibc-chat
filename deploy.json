@@ -3,10 +3,10 @@
     "local": {
       "client": null,
       "server": {
-        "codeId": 21,
-        "address": "neutron1jarq7kgdyd7dcfu2ezeqvg4w4hqdt3m5lv364d8mztnp9pzmwwwqjw7fvg",
+        "codeId": 22,
+        "address": "neutron1nhay73rdztlwwxnspup3y4uld59ylaumhddjt80eqmd0xl5e7mfqx0rnr3",
         "hash": "da440e3afeb259497c61a097568f43c7983243f833b060ffc47444809355cc40",
-        "ibcPort": "wasm.neutron1jarq7kgdyd7dcfu2ezeqvg4w4hqdt3m5lv364d8mztnp9pzmwwwqjw7fvg"
+        "ibcPort": "wasm.neutron1nhay73rdztlwwxnspup3y4uld59ylaumhddjt80eqmd0xl5e7mfqx0rnr3"
       }
     },
     "testnet": {
@@ -17,10 +17,10 @@
   "kujira": {
     "local": {
       "client": {
-        "codeId": 2,
-        "address": "kujira1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrqnqu9cc",
+        "codeId": 3,
+        "address": "kujira17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgstmzq3u",
         "hash": "2b684ff6372c01405325f8d7ae285cd397bde6d278feccf7b41cc6f5e217680e",
-        "ibcPort": "wasm.kujira1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrqnqu9cc"
+        "ibcPort": "wasm.kujira17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgstmzq3u"
       },
       "server": null
     },
@@ -32,10 +32,10 @@
   "stargaze": {
     "local": {
       "client": {
-        "codeId": 2,
-        "address": "stars1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq096cja",
+        "codeId": 3,
+        "address": "stars17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgsh7yame",
         "hash": "2b684ff6372c01405325f8d7ae285cd397bde6d278feccf7b41cc6f5e217680e",
-        "ibcPort": "wasm.stars1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq096cja"
+        "ibcPort": "wasm.stars17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgsh7yame"
       },
       "server": null
     },
@@ -47,10 +47,10 @@
   "nois": {
     "local": {
       "client": {
-        "codeId": 2,
-        "address": "nois1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq5z5suf",
+        "codeId": 3,
+        "address": "nois17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgsve244d",
         "hash": "2b684ff6372c01405325f8d7ae285cd397bde6d278feccf7b41cc6f5e217680e",
-        "ibcPort": "wasm.nois1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq5z5suf"
+        "ibcPort": "wasm.nois17p9rzwnnfxcjp32un9ug7yhhzgtkhvl9jfksztgw5uh69wac2pgsve244d"
       },
       "server": null
     },

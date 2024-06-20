@@ -56,14 +56,22 @@
 
 ## Prerequisites
 
+The usual stuff
+
 * [Rust](https://www.rust-lang.org/)
 * [Go](https://go.dev/)
 * [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (nodejs package manager)
+
+Less standard, but good tools to have anyway
+
 * [Taskfile](https://taskfile.dev) (overall task runner) 
 * [jq](https://jqlang.github.io/jq/download/) (parse json on commandline)
+* (optional) [binaryen](https://github.com/WebAssembly/binaryen)
+
+Frontend-only
+
 * [Trunk](https://trunkrs.dev/) (for frontend dev/deploy)
-* [http-server-rs](https://github.com/http-server-rs/http-server) (for frontend local media serving)
-* anything else the commandline tells you to install :)
+* (optionalish) [http-server-rs](https://github.com/http-server-rs/http-server) (for frontend local media serving)
 
 ## Local chains
 

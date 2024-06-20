@@ -1,5 +1,5 @@
 ####### Build artifacts, logs, and third-party dependencies
-/wasm
+/artifacts
 /schema
 tmp-relayer*.json
 

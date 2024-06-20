@@ -7,8 +7,8 @@ use shared::msg::network::NetworkId;
 
 use crate::prelude::*;
 
-pub const WASM_ARTIFACTS_PATH:&'static str = "../wasm/artifacts";
 pub const DEPLOY_CONFIG_PATH:&'static str = "..";
+pub const WASM_ARTIFACTS_PATH:&'static str = "../artifacts";
 
 thread_local! {
     pub static NETWORK_CONTRACT_PAIRS:Vec<(WalletSigning, ContractKind)> = vec![

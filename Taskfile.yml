@@ -64,14 +64,12 @@ tasks:
   internal-contracts-build-native:
     internal: true
     vars:
-      WASM_DIR: "{{.USER_WORKING_DIR}}/wasm"
-      ARTIFACTS_DIR: "{{.WASM_DIR}}/artifacts" 
+      ARTIFACTS_DIR: "{{.USER_WORKING_DIR}}/artifacts" 
       CONTRACTS_DIR: "{{.USER_WORKING_DIR}}/contracts" 
       RELEASE_DIR: "{{.USER_WORKING_DIR}}/target/wasm32-unknown-unknown/release"
       INTERMEDIATE_SHAS: "{{.ARTIFACTS_DIR}}/checksums_intermediate.txt"
 
     cmds:
-      - rm -rf "{{.WASM_DIR}}"
       - mkdir -p "{{.ARTIFACTS_DIR}}"
       - for: { var: CONTRACTS }
         cmd: cd "{{joinPath .CONTRACTS_DIR .ITEM}}" && RUSTFLAGS="-C link-arg=-s" cargo build --release --lib --target=wasm32-unknown-unknown
@@ -85,35 +83,19 @@ tasks:
     internal: true
     dir: packages
     cmds:
-      - docker run --rm --tty
-        -u "$(id -u)":"$(id -g)"
-        -v "{{.USER_WORKING_DIR}}":/code
-        -v "{{.USER_WORKING_DIR}}/wasm/target":/target
-        -v "{{.USER_WORKING_DIR}}/wasm/artifacts":/code/artifacts
-        -v "{{.USER_WORKING_DIR}}/wasm/registry":/usr/local/cargo/registry
-        -v "{{.USER_WORKING_DIR}}/wasm/git":/usr/local/cargo/git
-        cosmwasm/workspace-optimizer:0.15.0
-
-      # not sure how this was created since we mapped the tool's /code/artifacts
-      # but it's empty (the real artifacts are in wasm/artifacts)
-      - rm -rf ./artifacts
+      - docker run --rm -v "{{.USER_WORKING_DIR}}":/code
+        --mount type=volume,source="$(basename "{{.USER_WORKING_DIR}}")_cache",target=/target
+        --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry
+        cosmwasm/workspace-optimizer:0.16.0
 
   internal-contracts-build-docker_arm:
     internal: true
     dir: packages
     cmds:
-      - docker run --rm --tty
-        -u "$(id -u)":"$(id -g)"
-        -v "{{.USER_WORKING_DIR}}":/code
-        -v "{{.USER_WORKING_DIR}}/wasm/target":/target
-        -v "{{.USER_WORKING_DIR}}/wasm/artifacts":/code/artifacts
-        -v "{{.USER_WORKING_DIR}}/wasm/registry":/usr/local/cargo/registry
-        -v "{{.USER_WORKING_DIR}}/wasm/git":/usr/local/cargo/git
-        cosmwasm/workspace-optimizer-arm64:0.15.0
-
-      # not sure how this was created since we mapped the tool's /code/artifacts
-      # but it's empty (the real artifacts are in wasm/artifacts)
-      - rm -rf ./artifacts
+      - docker run --rm -v "{{.USER_WORKING_DIR}}":/code
+        --mount type=volume,source="$(basename "{{.USER_WORKING_DIR}}")_cache",target=/target
+        --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry
+        cosmwasm/workspace-optimizer-arm64:0.16.0
 
   contracts-build:
     desc: |
@@ -126,7 +108,6 @@ tasks:
     desc: |
       contracts-deploy-{{.DESC_TARGETS}}
       Rebuilds and deploys the contracts (i.e. with fresh instantiation, new address and state)
-    dir: cli
     vars:
       TARGET: "{{index .MATCH 0}}"
     cmds:
@@ -138,7 +119,6 @@ tasks:
     desc: |
       contracts-migrate-{{.DESC_TARGETS}}
       Rebuilds and migrates the contracts (i.e. does not change contract addr or necessarily wipe state)
-    dir: cli
     vars:
       TARGET: "{{index .MATCH 0}}"
     cmds:
@@ -579,14 +559,6 @@ tasks:
     dir: deployer
     cmds:
       - npm run build 
-
-  internal-deployer-deploy-*:
-    internal: true
-    vars:
-      TARGET: "{{index .MATCH 0}}"
-    cmds:
-      - task: deployer-build
-      - task: internal-deployer-only-deploy-{{.TARGET}} 
 
   internal-deployer-only-deploy-*:
     internal: true

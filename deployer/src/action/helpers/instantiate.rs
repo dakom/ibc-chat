@@ -1,5 +1,5 @@
 use cosmwasm_std::{Addr, Empty};
-use crate::{bindings::crypto::HashAlgo, config::{write_contract_deploy_config, WASM_ARTIFACTS_PATH}, prelude::*};
+use crate::{bindings::crypto::HashAlgo, config::write_contract_deploy_config, prelude::*};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum InstantiateKind {

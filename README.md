@@ -195,6 +195,8 @@ The build tool used is set by the `CONTRACTS_BUILD_TOOL` env var
 * docker: the docker optimizer tool
 * docker_arm: the docker optimizer tool for arm systems (e.g. apple silicon)
 
+The resulting .wasm files will all be in `wasm/artifacts`
+
 For the sake of speed, the `deployer` tool is _not_ rebuilt every time it's run - which is why the setup instructions included preparing the cli. If the tool does need to be rebuilt, e.g. if Instantiation or Migration messages change, remember to `task deployer-build` to update the tool itself.
 
 # CLI

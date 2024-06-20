@@ -1,3 +1,4 @@
+use awsm_web::env::env_var;
 use cosmwasm_std::{Addr, Empty};
 use crate::{bindings::crypto::HashAlgo, config::{write_contract_deploy_config, WASM_ARTIFACTS_PATH}, prelude::*};
 
@@ -11,7 +12,8 @@ pub enum UploadKind {
 
 // if a new upload happened, returns the new config
 pub async fn upload(wallet: &WalletSigning, contract_kind: ContractKind, kind: UploadKind) -> Result<Option<DeployContractConfig>> {
-    let path = file_path(WASM_ARTIFACTS_PATH, &format!("{}.wasm", contract_kind));
+    let path = format!("{}/{}.wasm", WASM_ARTIFACTS_PATH, contract_kind);
+
     let data = file_read_binary(path.as_str())
         .await
         .map_err(|err| anyhow!("{:?}", err))?;

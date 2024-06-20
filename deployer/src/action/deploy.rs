@@ -1,5 +1,5 @@
 use cosmwasm_std::{Addr, Empty};
-use crate::{action::helpers::ibc_port::update_ibc_port, bindings::crypto::HashAlgo, config::{write_contract_deploy_config, NETWORK_CONTRACT_PAIRS, WASM_ARTIFACTS_PATH}, prelude::*};
+use crate::{action::helpers::ibc_port::update_ibc_port, bindings::crypto::HashAlgo, config::{write_contract_deploy_config, NETWORK_CONTRACT_PAIRS}, prelude::*};
 
 use super::helpers::{
     upload::{upload, UploadKind},

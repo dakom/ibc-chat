@@ -12,6 +12,7 @@ tauri-build = { version = "2.0.0-beta", features = [] }
 
 [dependencies]
 shared-gui = {path = "../shared"}
+wallet = {path = "../../packages/wallet"}
 tauri = { version = "2.0.0-beta", features = [] }
 tauri-plugin-shell = "2.0.0-beta"
 serde = { version = "1", features = ["derive"] }

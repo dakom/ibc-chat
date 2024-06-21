@@ -9,6 +9,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 shared = {path = "../../packages/shared"}
 shared-gui = {path = "../shared"}
+wallet = {path = "../../packages/wallet"}
 wasm-bindgen = "0.2.92"
 js-sys = "0.3.69"
 futures = "0.3.30"

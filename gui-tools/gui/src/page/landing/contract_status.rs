@@ -1,4 +1,5 @@
 use shared_gui::status::ContractStatus;
+use wallet::config::Environment;
 
 use crate::{atoms::dynamic_svg::color_circle::ColorCircle, prelude::*};
 
@@ -27,8 +28,9 @@ impl ContractStatusUi {
         html!("div", {
             .future(clone!(state => async move {
                 // TODO - poll!
+                // TODO - get environment from GUI!
 
-                let status = tauri::contract_status().await.unwrap();
+                let status = tauri::contract_status(Environment::Testnet).await.unwrap();
                 state.status.set_neq(status);
             }))
             .class(&*CLASS)

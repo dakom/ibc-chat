@@ -1860,6 +1860,7 @@ dependencies = [
  "shared-gui",
  "thiserror",
  "unic-langid",
+ "wallet",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-logger",
@@ -1877,6 +1878,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-shell",
+ "wallet",
 ]
 
 [[package]]

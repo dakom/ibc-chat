@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use anyhow::{Result, anyhow};
 use shared::{contract_kind::ContractKind, msg::network::NetworkId};
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Environment {
     Local,
     Testnet,
@@ -51,6 +51,14 @@ pub struct DeployConfig {
 }
 
 impl DeployConfig {
+    pub fn all_networks(&self) -> Vec<&DeployNetworkConfig> {
+        vec![&self.neutron, &self.kujira, &self.stargaze, &self.nois]
+    }
+
+    pub fn all_networks_mut(&mut self) -> Vec<&DeployNetworkConfig> {
+        vec![&mut self.neutron, &mut self.kujira, &mut self.stargaze, &mut self.nois]
+    }
+
     pub fn contract(&self, env: Environment, network: NetworkId, contract: ContractKind) -> DeployContractConfig {
         let config = match network {
             NetworkId::Neutron => self.neutron.clone(),
@@ -106,6 +114,16 @@ pub struct DeployEnvConfig {
     pub server: Option<DeployContractConfig>,
 }
 
+impl DeployEnvConfig {
+    pub fn all_contracts(&self) -> Vec<Option<&DeployContractConfig>> {
+        vec![self.client.as_ref(), self.server.as_ref()]
+    }
+
+    pub fn all_contracts_mut(&mut self) -> Vec<Option<&mut DeployContractConfig>> {
+        vec![self.client.as_mut(), self.server.as_mut()]
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DeployContractConfig {
     #[serde(rename = "codeId")]
@@ -114,6 +132,8 @@ pub struct DeployContractConfig {
     pub hash: Option<String>,
     #[serde(rename = "ibcPort")]
     pub ibc_port: Option<String>,
+    #[serde(rename = "guiHash")]
+    pub gui_hash: Option<String>,
 }
 
 /****** Network Config ********/

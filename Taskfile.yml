@@ -624,7 +624,7 @@ tasks:
 
   test-offchain:
     desc: Run offchain / multi-test tests
-    dir: packages/multitest
+    dir: offchain-tests 
     cmds:
       - cargo test
 

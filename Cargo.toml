@@ -5,6 +5,7 @@ members = [
     "frontend",
     "deployer",
     "onchain-tests",
+    "offchain-tests",
     "gui-tools/tauri",
     "gui-tools/gui",
     "gui-tools/shared"

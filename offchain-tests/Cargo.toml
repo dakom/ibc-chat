@@ -8,10 +8,10 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-server = {path = "../../contracts/server"} 
-client = {path = "../../contracts/client"} 
-shared = {path = "../shared"}
-wallet = {path = "../wallet"}
+server = {path = "../contracts/server"} 
+client = {path = "../contracts/client"} 
+shared = {path = "../packages/shared"}
+wallet = {path = "../packages/wallet"}
 cosmwasm-std = {version = "2.0.3", features = ["stargate"]}
 anyhow = "1.0.86"
 cw-multi-test = "2.0.1"

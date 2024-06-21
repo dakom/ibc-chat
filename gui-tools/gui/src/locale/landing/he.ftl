@@ -1,0 +1,2 @@
+# general
+button-submit = שלח

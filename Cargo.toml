@@ -4,7 +4,10 @@ members = [
     "packages/*",
     "frontend",
     "deployer",
-    "onchain-tests"
+    "onchain-tests",
+    "gui-tools/tauri",
+    "gui-tools/gui",
+    "gui-tools/shared"
 ]
 resolver = "2"
 

@@ -1,0 +1,35 @@
+{
+  "productName": "gui-tools",
+  "version": "0.0.0",
+  "identifier": "com.tauri.dev",
+  "build": {
+    "beforeDevCommand": "trunk serve -d gui/dist --features dev --watch gui --watch shared --watch ../packages/shared gui/index.html",
+    "beforeBuildCommand": "trunk build --release -d gui/dist gui/index.html",
+    "devUrl": "http://localhost:8080",
+    "frontendDist": "./gui/dist"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "gui-tools",
+        "width": 1920,
+        "height": 1080 
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

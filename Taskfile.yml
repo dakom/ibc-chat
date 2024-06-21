@@ -591,6 +591,7 @@ tasks:
       - node dist/js/deployer.js --action=migrate
 
   #### TESTS #### 
+
   onchain-tests-build:
     desc: Rebuilds the test-runner tool. Typically used with test-only-onchain-*
     internal: true
@@ -626,3 +627,18 @@ tasks:
     dir: packages/multitest
     cmds:
       - cargo test
+
+  #### GUI TOOLS #### 
+  gui-tools-dev:
+    desc: Starts the GUI tools in dev mode
+    dir: ./gui-tools/tauri
+    cmds:
+      - cargo tauri dev
+
+  gui-tools-frontend-debug:
+    desc: Starts just the frontend of the gui, helps with debugging
+    dir: ./gui-tools
+    env: 
+      TAURI_INVOKE: "mock"
+    cmds:
+      - trunk serve -d gui/dist --features dev --watch gui --watch shared --watch ../packages/shared gui/index.html 

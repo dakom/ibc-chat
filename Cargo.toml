@@ -6,10 +6,13 @@ members = [
     "deployer",
     "onchain-tests",
     "offchain-tests",
-    "gui-tools/tauri",
-    "gui-tools/gui",
-    "gui-tools/shared"
+    "dev-tools/tauri",
+    "dev-tools/web",
+    "dev-tools/processor",
+    "dev-tools/shared",
+    "dev-tools/cli",
 ]
+
 resolver = "2"
 
 [profile.release]

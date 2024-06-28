@@ -1,0 +1,27 @@
+[package]
+name = "processor"
+version = "0.0.0"
+authors = ["Confio Team"]
+edition = "2021"
+
+[lib]
+crate-type = ["lib"]
+
+[dependencies]
+shared = {path = "../../packages/shared"}
+wallet = {path = "../../packages/wallet"}
+shared-dev-tools = {path = "../shared"}
+cosmwasm-std = "2.0.3"
+cosmwasm-schema = "2.0.3"
+thiserror = "1.0.61"
+anyhow = "1.0.86"
+cw2 = "2.0.0"
+serde = "1.0.202"
+serde_json = "1.0.117"
+toml = "0.8.14"
+glob = "0.3.1"
+ring = "0.17.8"
+notify = {version = "6.1.1", features = ["serde"]}
+hex = "0.4.3"
+futures = "0.3"
+tokio = { version = "1", features = ["full"] }

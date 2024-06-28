@@ -26,7 +26,7 @@
 - Setup
    - [Prerequisites](#prerequisites)
    - [Local chains](#local-chains)
-   - [Gui Tools](#gui-tools)
+   - [Dev Tools](#dev-tools)
    - [Manual setup](#manual-setup)
    - [Testnet](#testnet)
 - [IBC Flow](#ibc-flow)
@@ -46,7 +46,7 @@
 * Client-side "sdk-like" methods (i.e. contract API) are shared between all clients (including on-chain, off-chain, and frontend)
   - e.g. the [ContractClient](https://dakom.github.io/ibc-chat/doc/wallet/contract_traits/trait.ContractClient.html) and [ContractServer](https://dakom.github.io/ibc-chat/doc/wallet/contract_traits/trait.ContractServer.html) - which are traits with implementations everywhere. Just call the methods and it works, whether in multi-test, on-chain tests, or frontend!
 * Taskfile with simple commands to make setup and development _much_ less painful (`task --list-all` to skip past the Readme, sorta...) - works in CI too!
-* Gui tools for a fun, easy-to-understand, interactive way to run those tasks
+* Dev tools for a fun, easy-to-understand, interactive way to run those tasks
 
 # [Live Demo](https://dakom.github.io/ibc-chat/)
 
@@ -75,7 +75,7 @@ Frontend-only
 * [Trunk](https://trunkrs.dev/) (for frontend dev/deploy)
 * (optionalish) [http-server-rs](https://github.com/http-server-rs/http-server) (for frontend local media serving)
 
-Gui-tools-only
+Dev-tools-gui-only
 
 * [Tauri-cli](https://v2.tauri.app/reference/cli/)
 * Also Trunk, if not installed for frontend :)
@@ -98,23 +98,29 @@ Gui-tools-only
       - clone [https://github.com/noislabs/noisd](https://github.com/noislabs/noisd)
       - `docker build -t local-nois .`
 
-Once you have the docker images, you can use the [Gui Tools](#gui-tools) or the following commands manually:
+Once you have the docker images, you can use the [Dev Tools GUI](#dev-tools) or the following commands manually:
 
-1. Create containers for chains: `task chains-create` (or use the [Gui Tools](#gui-tools))
+1. Create containers for chains: `task chains-create` (or use the [Dev Tools GUI](#dev-tools))
 2. Start chains: `task chains-start`
 3. Stop chains: `task chains-stop`
 
 Debugging individual chains by shell can be done via `task chain-sh-[neutron | kujira | stargaze | nois]`.
 
-## Gui tools
+## Dev tools
 
-### WORK-IN-PROGRESS, NOT READY YET!!!
+#### WORK-IN-PROGRESS, NOT READY YET!!!
+
+### GUI
 
 Throughout this Readme you'll see Taskfile commands to do things like deploy contracts, create relayer channels, start/stop local chains, etc.
 
 This works perfectly, and it's needed for CI flows - but it can be a little daunting to know which task to run, get the status, and let's face it - it's more fun to press buttons sometimes :)
 
-The Gui tools can started via `task gui-tools-dev`, and everything can be managed from there.
+The Dev Tools Gui tools can started via `task dev-tools-gui`, and everything can be managed from there.
+
+### CLI
+
+Right now, this is really just a shortcut to run some of the GUI functions directly. Perhaps it could/should replace the Taskfile approach completely. TBD.
 
 ## Manual setup 
 

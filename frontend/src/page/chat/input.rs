@@ -45,7 +45,6 @@ impl ChatInput {
                 .style("display", "flex")
                 .style("align-items", "center")
                 .style("cursor", "pointer")
-                .style("user-select", "none")
                 .style("padding", "0 1rem")
             }
         });
@@ -62,6 +61,7 @@ impl ChatInput {
             }))
             .child(html!("div", {
                 .class(&*BUTTON)
+                .class(&*USER_SELECT_NONE)
                 .text("Send")
                 .event(clone!(state, on_submit => move |_:events::Click| {
                     if let Some(input_elem) = state.input_elem.read().unwrap_ext().as_ref() {

@@ -1,0 +1,6 @@
+contracts
+frontend
+deployer
+onchain-tests
+offchain-tests
+dev-tools/cli

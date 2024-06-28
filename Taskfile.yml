@@ -20,6 +20,8 @@ vars:
     server
   DESC_TARGETS: "[local | testnet]"
   DESC_CHAIN_IDS: "[{{.RELAYER_CHAIN_SERVER}} | {{splitList \" \" .RELAYER_CHAIN_CLIENTS | join \" | \"}}]"
+  MEDIA_DEV_PORT_FRONTEND: 9000
+  MEDIA_DEV_PORT_DEVTOOLS: 9001
 
 tasks:
 
@@ -31,7 +33,7 @@ tasks:
       Starts the frontend in dev mode, run in its own terminal (not a background or one-off task)
     vars:
       TARGET: "{{index .MATCH 0}}"
-    deps: [internal-localmedia-dev, "internal-frontend-dev-nomedia-{{.TARGET}}"]
+    deps: [internal-frontend-localmedia, "internal-frontend-dev-nomedia-{{.TARGET}}"]
 
   frontend-build:
     desc: Builds the frontend, only used in CI / final delivery 
@@ -53,11 +55,11 @@ tasks:
     cmds:
       - trunk serve --features dev --watch . --watch ../packages/shared --watch ../packages/wallet
 
-  internal-localmedia-dev:
+  internal-frontend-localmedia:
     internal: true
     dir: ./media/frontend
     cmds: 
-      - http-server --gzip --cors -p 9000
+      - http-server --gzip --cors -p {{.MEDIA_DEV_PORT_FRONTEND}}
 
 
   ##### CONTRACT BUILDING / DEPLOYING #####
@@ -628,17 +630,34 @@ tasks:
     cmds:
       - cargo test
 
-  #### GUI TOOLS #### 
-  gui-tools-dev:
-    desc: Starts the GUI tools in dev mode
-    dir: ./gui-tools/tauri
+  #### DEV TOOLS #### 
+  dev-tools-gui:
+    desc: Starts the dev tools GUI (in dev mode)
+    dir: ./dev-tools/tauri
     cmds:
       - cargo tauri dev
 
-  gui-tools-frontend-debug:
-    desc: Starts just the frontend of the gui, helps with debugging
-    dir: ./gui-tools
+  dev-tools-cli:
+    desc: Starts the dev tools CLI (in dev mode)
+    dir: ./dev-tools/cli
+    cmds:
+      - cargo run -- {{.CLI_ARGS}}
+
+  dev-tools-web:
+    deps: [internal-dev-tools-localmedia, internal-dev-tools-web]
+    desc: Starts just the frontend of the dev tools GUI, helps with debugging ui-only issues faster.
+
+  internal-dev-tools-web:
+    internal: true
+    dir: ./dev-tools
     env: 
       TAURI_INVOKE: "mock"
+      TAURI_MEDIA: "localserver"
     cmds:
-      - trunk serve -d gui/dist --features dev --watch gui --watch shared --watch ../packages/shared gui/index.html 
+      - trunk serve -d web/dist --features dev --watch web --watch shared --watch ../packages/shared web/index.html 
+
+  internal-dev-tools-localmedia:
+    internal: true
+    dir: ./media/dev-tools
+    cmds: 
+      - http-server --gzip --cors -p {{.MEDIA_DEV_PORT_DEVTOOLS}}

@@ -2,6 +2,7 @@ use cosmwasm_std::{Addr, Event};
 use serde::de::DeserializeOwned;
 
 /// Extension trait to add methods to native cosmwasm events
+/// 
 pub trait CosmwasmEventExt {
     // these are the only two that require implementation
     // everything else builds on these

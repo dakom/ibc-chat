@@ -10,6 +10,17 @@ pub enum NetworkId {
     Nois
 }
 
+impl NetworkId {
+    pub fn all() -> &'static [Self] {
+        &[
+            NetworkId::Neutron,
+            NetworkId::Stargaze,
+            NetworkId::Kujira,
+            NetworkId::Nois,
+        ]
+    }
+}
+
 impl std::fmt::Display for NetworkId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {

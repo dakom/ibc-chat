@@ -8,6 +8,7 @@ use shared::{
 use anyhow::{Context, Result};
 
 use crate::state::{State, StateContext};
+
 // version info for migration info
 const CONTRACT_NAME: &str = env!("CARGO_PKG_NAME");
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");

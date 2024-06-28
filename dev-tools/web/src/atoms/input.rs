@@ -68,8 +68,8 @@ impl TextInput {
                 dom.child(html!("div", {
                     .style("margin-top", "0.625rem")
                     .style("cursor", "pointer")
-                    .class(&*USER_SELECT_NONE)
                     .class(&*TEXT_SIZE_MD)
+                    .class(&*USER_SELECT_NONE)
                     .text_signal(show_password.signal().map(|show_password| {
                         if show_password {
                             get_text!("landing-signin-hide-password")

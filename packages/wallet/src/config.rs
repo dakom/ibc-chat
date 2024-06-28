@@ -23,6 +23,12 @@ impl Environment {
     }
 }
 
+impl std::fmt::Display for Environment {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
 impl From<&str> for Environment {
     fn from(s: &str) -> Self {
         match s {
@@ -73,11 +79,11 @@ impl DeployConfig {
         };
 
         let config = match contract {
-            ContractKind::Client => config.client.expect("client contract not found"),
-            ContractKind::Server => config.server.expect("server contract not found"),
+            ContractKind::Client => config.client,
+            ContractKind::Server => config.server
         };
 
-        config
+        config.expect(&format!("contract {} not found for {} environment on {} network", contract, env, network))
     }
 
     pub fn replace_contract(&mut self, env: Environment, network: NetworkId, contract: ContractKind, config: DeployContractConfig) {
@@ -132,8 +138,8 @@ pub struct DeployContractConfig {
     pub hash: Option<String>,
     #[serde(rename = "ibcPort")]
     pub ibc_port: Option<String>,
-    #[serde(rename = "guiHash")]
-    pub gui_hash: Option<String>,
+    #[serde(rename = "srcHash")]
+    pub src_hash: Option<String>,
 }
 
 /****** Network Config ********/

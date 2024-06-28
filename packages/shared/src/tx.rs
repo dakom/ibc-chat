@@ -1,6 +1,5 @@
 use cosmwasm_std::Event;
 use anyhow::{Result, anyhow};
-
 pub trait CosmosResponseExt: std::fmt::Debug {
     // this is the only method needed to satisfy
     // everything else is derived

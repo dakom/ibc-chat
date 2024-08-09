@@ -5,12 +5,7 @@ members = [
     "frontend",
     "deployer",
     "onchain-tests",
-    "offchain-tests",
-    "dev-tools/tauri",
-    "dev-tools/web",
-    "dev-tools/processor",
-    "dev-tools/shared",
-    "dev-tools/cli",
+    "offchain-tests"
 ]
 
 resolver = "2"

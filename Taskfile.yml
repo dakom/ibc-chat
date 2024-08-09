@@ -390,6 +390,8 @@ tasks:
       STAKE_DENOM: "{{.FEE_DENOM}}" 
       RPC_PORT:
         sh: jq -r '.{{.ID}}_local.rpc_url' network.json | sed -E 's/.*:([0-9]+).*/\1/' 
+      GRPC_PORT:
+        sh: jq -r '.{{.ID}}_local.grpc_url' network.json | sed -E 's/.*:([0-9]+).*/\1/' 
       REST_PORT:
         sh: jq -r '.{{.ID}}_local.rest_url' network.json | sed -E 's/.*:([0-9]+).*/\1/' 
       BINARY:
@@ -414,7 +416,7 @@ tasks:
       # create the docker instance
       - docker run -d --name {{.CHAIN_ID}} 
         --entrypoint ""
-        -p {{.RPC_PORT}}:26657 -p {{.REST_PORT}}:1317 
+        -p {{.RPC_PORT}}:26657 -p {{.REST_PORT}}:1317 -p {{.GRPC_PORT}}:9090
         --mount type=volume,source={{.VOLUME_NAME}},target=/root 
         "{{.DOCKER_IMAGE}}"
         tail -f /dev/null
@@ -629,35 +631,3 @@ tasks:
     dir: offchain-tests 
     cmds:
       - cargo test
-
-  #### DEV TOOLS #### 
-  dev-tools-gui:
-    desc: Starts the dev tools GUI (in dev mode)
-    dir: ./dev-tools/tauri
-    cmds:
-      - cargo tauri dev
-
-  dev-tools-cli:
-    desc: Starts the dev tools CLI (in dev mode)
-    dir: ./dev-tools/cli
-    cmds:
-      - cargo run -- {{.CLI_ARGS}}
-
-  dev-tools-web:
-    deps: [internal-dev-tools-localmedia, internal-dev-tools-web]
-    desc: Starts just the frontend of the dev tools GUI, helps with debugging ui-only issues faster.
-
-  internal-dev-tools-web:
-    internal: true
-    dir: ./dev-tools
-    env: 
-      TAURI_INVOKE: "mock"
-      TAURI_MEDIA: "localserver"
-    cmds:
-      - trunk serve -d web/dist --features dev --watch web --watch shared --watch ../packages/shared web/index.html 
-
-  internal-dev-tools-localmedia:
-    internal: true
-    dir: ./media/dev-tools
-    cmds: 
-      - http-server --gzip --cors -p {{.MEDIA_DEV_PORT_DEVTOOLS}}

@@ -1,2 +1,0 @@
-# general
-button-submit = שלח

@@ -3,10 +3,10 @@
     "local": {
       "client": null,
       "server": {
-        "codeId": 31,
-        "address": "neutron1s6rnsf93ka5g3swv858svh45da54sw7fc3nz682wm0plpl8llnkseav6ll",
-        "hash": "da440e3afeb259497c61a097568f43c7983243f833b060ffc47444809355cc40",
-        "ibcPort": "wasm.neutron1s6rnsf93ka5g3swv858svh45da54sw7fc3nz682wm0plpl8llnkseav6ll"
+        "codeId": 21,
+        "address": "neutron1jarq7kgdyd7dcfu2ezeqvg4w4hqdt3m5lv364d8mztnp9pzmwwwqjw7fvg",
+        "hash": "fda276fb44a5c03883f73e31dea7f10a9591b6d5016175cbeaf4a88f5aa393a0",
+        "ibcPort": "wasm.neutron1jarq7kgdyd7dcfu2ezeqvg4w4hqdt3m5lv364d8mztnp9pzmwwwqjw7fvg"
       }
     },
     "testnet": {
@@ -17,10 +17,10 @@
   "kujira": {
     "local": {
       "client": {
-        "codeId": 10,
-        "address": "kujira1999u8suptza3rtxwk7lspve02m406xe7l622erg3np3aq05gawxsd49p30",
-        "hash": "2b684ff6372c01405325f8d7ae285cd397bde6d278feccf7b41cc6f5e217680e",
-        "ibcPort": "wasm.kujira1999u8suptza3rtxwk7lspve02m406xe7l622erg3np3aq05gawxsd49p30"
+        "codeId": 2,
+        "address": "kujira1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrqnqu9cc",
+        "hash": "7af0855deea3072d8049dae98e2c1a9dab59ffea65ca8faf8bf5117fe9aeae13",
+        "ibcPort": "wasm.kujira1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrqnqu9cc"
       },
       "server": null
     },
@@ -32,10 +32,10 @@
   "stargaze": {
     "local": {
       "client": {
-        "codeId": 8,
-        "address": "stars1vguuxez2h5ekltfj9gjd62fs5k4rl2zy5hfrncasykzw08rezpfs6zk529",
-        "hash": "2b684ff6372c01405325f8d7ae285cd397bde6d278feccf7b41cc6f5e217680e",
-        "ibcPort": "wasm.stars1vguuxez2h5ekltfj9gjd62fs5k4rl2zy5hfrncasykzw08rezpfs6zk529"
+        "codeId": 2,
+        "address": "stars1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq096cja",
+        "hash": "7af0855deea3072d8049dae98e2c1a9dab59ffea65ca8faf8bf5117fe9aeae13",
+        "ibcPort": "wasm.stars1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq096cja"
       },
       "server": null
     },
@@ -47,10 +47,10 @@
   "nois": {
     "local": {
       "client": {
-        "codeId": 8,
-        "address": "nois1vguuxez2h5ekltfj9gjd62fs5k4rl2zy5hfrncasykzw08rezpfsp9cuy3",
-        "hash": "2b684ff6372c01405325f8d7ae285cd397bde6d278feccf7b41cc6f5e217680e",
-        "ibcPort": "wasm.nois1vguuxez2h5ekltfj9gjd62fs5k4rl2zy5hfrncasykzw08rezpfsp9cuy3"
+        "codeId": 2,
+        "address": "nois1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq5z5suf",
+        "hash": "7af0855deea3072d8049dae98e2c1a9dab59ffea65ca8faf8bf5117fe9aeae13",
+        "ibcPort": "wasm.nois1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrq5z5suf"
       },
       "server": null
     },

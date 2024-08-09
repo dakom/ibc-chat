@@ -26,7 +26,6 @@
 - Setup
    - [Prerequisites](#prerequisites)
    - [Local chains](#local-chains)
-   - [Dev Tools](#dev-tools)
    - [Manual setup](#manual-setup)
    - [Testnet](#testnet)
 - [IBC Flow](#ibc-flow)
@@ -75,10 +74,6 @@ Frontend-only
 * [Trunk](https://trunkrs.dev/) (for frontend dev/deploy)
 * (optionalish) [http-server-rs](https://github.com/http-server-rs/http-server) (for frontend local media serving)
 
-Dev-tools-gui-only
-
-* [Tauri-cli](https://v2.tauri.app/reference/cli/)
-* Also Trunk, if not installed for frontend :)
 
 ## Local chains
 
@@ -98,29 +93,13 @@ Dev-tools-gui-only
       - clone [https://github.com/noislabs/noisd](https://github.com/noislabs/noisd)
       - `docker build -t local-nois .`
 
-Once you have the docker images, you can use the [Dev Tools GUI](#dev-tools) or the following commands manually:
+Once you have the docker images, you can run the following commands:
 
-1. Create containers for chains: `task chains-create` (or use the [Dev Tools GUI](#dev-tools))
+1. Create containers for chains: `task chains-create`
 2. Start chains: `task chains-start`
 3. Stop chains: `task chains-stop`
 
 Debugging individual chains by shell can be done via `task chain-sh-[neutron | kujira | stargaze | nois]`.
-
-## Dev tools
-
-#### WORK-IN-PROGRESS, NOT READY YET!!!
-
-### GUI
-
-Throughout this Readme you'll see Taskfile commands to do things like deploy contracts, create relayer channels, start/stop local chains, etc.
-
-This works perfectly, and it's needed for CI flows - but it can be a little daunting to know which task to run, get the status, and let's face it - it's more fun to press buttons sometimes :)
-
-The Dev Tools Gui tools can started via `task dev-tools-gui`, and everything can be managed from there.
-
-### CLI
-
-Right now, this is really just a shortcut to run some of the GUI functions directly. Perhaps it could/should replace the Taskfile approach completely. TBD.
 
 ## Manual setup 
 
@@ -137,11 +116,13 @@ That's all for initial setup, then, to get a live working environment
 1. `task relayer-start-[local | testnet]` (in its own terminal) 
 2. `task frontend-dev-[local | testnet]` (in its own terminal) 
 
+####  If you have errors running on-chain tests or running the app at this point, don't despair! Running steps out of order can make things wonky - run the "if you need a full redeployment" steps below, and try again :)
+
 The first time hitting the frontend will need to click through the "install keplr" button several times to add all the chains. Just keep hitting it until it's done and able to connect :)
 
 As contracts change and you want to migrate, just `task contracts-migrate-[local | testnet]` and hard reload the frontend
 
-If you need a full redeployment (new addresses, wipe the state, etc.):
+### If you need a full redeployment (new addresses, wipe the state, etc.):
 
 1. kill the relayer and frontend if they're running 
 2. `task contracts-deploy-[local | testnet]`

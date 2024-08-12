@@ -481,6 +481,8 @@ tasks:
       # replace url to listen on all ip addresses
       - docker exec {{.CHAIN_ID}} sed -E -i 's/tcp:\/\/[^:]+:/tcp:\/\/0.0.0.0:/g' {{.APP_FILE}}
       - docker exec {{.CHAIN_ID}} sed -E -i 's/tcp:\/\/[^:]+:/tcp:\/\/0.0.0.0:/g' {{.CONFIG_FILE}}
+      # grpc needs special attention
+      - docker exec {{.CHAIN_ID}} sed -E -i '/\[grpc\]/,/\[/{s/address = ".*"/address = "0.0.0.0:9090"/}' {{.APP_FILE}}
       # replace denom in genesis file
       - for: { var: GENESIS_DENOM_KEYS }
         cmd: |

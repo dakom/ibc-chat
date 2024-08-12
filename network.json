@@ -11,7 +11,7 @@
     "neutron_local": {
       "rpc_url": "http://localhost:16657",
       "rest_url": "http://localhost:1337",
-      "grpc_url": "http://localhost:9090",
+      "grpc_url": "http://localhost:9190",
       "gas_price": "0.025",
       "full_denom": "NTRN",
       "denom": "untrn",
@@ -33,7 +33,7 @@
     "stargaze_local": {
       "rpc_url": "http://localhost:26658",
       "rest_url": "http://localhost:2338",
-      "grpc_url": "http://localhost:9190",
+      "grpc_url": "http://localhost:9290",
       "gas_price": "0.025",
       "full_denom": "STARS",
       "denom": "ustars",
@@ -55,7 +55,7 @@
     "kujira_local": {
       "rpc_url": "http://localhost:36659",
       "rest_url": "http://localhost:3339",
-      "grpc_url": "http://localhost:9290",
+      "grpc_url": "http://localhost:9390",
       "gas_price": "0.025",
       "full_denom": "Kuji",
       "denom": "ukuji",
@@ -77,7 +77,7 @@
     "nois_local": {
       "rpc_url": "http://localhost:46659",
       "rest_url": "http://localhost:4339",
-      "grpc_url": "http://localhost:9390",
+      "grpc_url": "http://localhost:9490",
       "gas_price": "0.025",
       "full_denom": "Nois",
       "denom": "unois",
